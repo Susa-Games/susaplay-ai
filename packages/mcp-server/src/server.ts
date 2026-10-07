@@ -4,7 +4,9 @@ import { ApiClient } from "./api/client.js";
 import { type Config, readConfig } from "./config.js";
 import { registerAddressablesTools } from "./tools/addressables.js";
 import { registerAnalyticsTools } from "./tools/analytics.js";
+import { registerCheckProjectTool } from "./tools/check-project.js";
 import { registerGameTools } from "./tools/games.js";
+import { registerInspectBuildTool } from "./tools/inspect-build.js";
 import { registerSimulatorTools } from "./tools/simulator.js";
 import { SERVER_NAME, SERVER_VERSION } from "./version.js";
 
@@ -32,5 +34,7 @@ export function createServer(dependencies: ServerDependencies = {}): McpServer {
   registerAddressablesTools(server, api);
   registerAnalyticsTools(server, api);
   registerSimulatorTools(server, api, dependencies.cwd);
+  registerCheckProjectTool(server, api, dependencies.cwd);
+  registerInspectBuildTool(server, api, dependencies.cwd, dependencies.fetch);
   return server;
 }
