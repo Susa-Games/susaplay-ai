@@ -7,6 +7,7 @@ import { registerAnalyticsTools } from "./tools/analytics.js";
 import { registerCheckProjectTool } from "./tools/check-project.js";
 import { registerGameTools } from "./tools/games.js";
 import { registerInspectBuildTool } from "./tools/inspect-build.js";
+import { registerPublishTools } from "./tools/publish.js";
 import { registerSimulatorTools } from "./tools/simulator.js";
 import { SERVER_NAME, SERVER_VERSION } from "./version.js";
 
@@ -36,5 +37,6 @@ export function createServer(dependencies: ServerDependencies = {}): McpServer {
   registerSimulatorTools(server, api, dependencies.cwd);
   registerCheckProjectTool(server, api, dependencies.cwd);
   registerInspectBuildTool(server, api, dependencies.cwd, dependencies.fetch);
+  registerPublishTools(server, api, dependencies.cwd, dependencies.fetch);
   return server;
 }

@@ -1,15 +1,17 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { describe, expect, it, vi } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 
 import { ApiClient } from "../src/api/client.js";
 import { inspectBuild } from "../src/tools/inspect-build.js";
 import { openBuild } from "../src/unity/build-source.js";
 import { RUNTIME_PATH } from "../src/unity/catalog.js";
 import { writeCatalog } from "./support/catalog-writer.js";
+import { removeTempDirs, tempDir } from "./support/temp.js";
 import { writeZip } from "./support/zip-writer.js";
+
+afterAll(removeTempDirs);
 
 const BASE = "https://games.susaplay.com/addressables/g1/";
 const offline = new ApiClient({ apiKey: null, apiBaseUrl: "https://api.test" });
@@ -38,7 +40,7 @@ function buildFiles(options: { localBundles?: string[]; catalogUrl?: string | nu
 }
 
 function folder(files: Record<string, string | Uint8Array>): string {
-  const root = mkdtempSync(join(tmpdir(), "susaplay-build-"));
+  const root = tempDir("susaplay-build-");
   for (const [name, content] of Object.entries(files)) {
     mkdirSync(dirname(join(root, name)), { recursive: true });
     writeFileSync(join(root, name), content);
@@ -47,7 +49,7 @@ function folder(files: Record<string, string | Uint8Array>): string {
 }
 
 function serverData(catalogName: string, bundleIds: string[], files: string[]): string {
-  const root = mkdtempSync(join(tmpdir(), "susaplay-serverdata-"));
+  const root = tempDir("susaplay-serverdata-");
   writeFileSync(join(root, catalogName), writeCatalog(bundleIds));
   writeFileSync(join(root, catalogName.replace(/\.bin$/, ".hash")), "hash");
   for (const file of files) writeFileSync(join(root, file), "bundle");
@@ -69,7 +71,7 @@ describe("inspectBuild: upload rules", () => {
     const files = buildFiles();
     expect((await inspect(folder(files))).report.passed).toBe(true);
     const wrapped = Object.fromEntries(Object.entries(files).map(([name, content]) => [`WebGLBuild/${name}`, content]));
-    const zip = join(mkdtempSync(join(tmpdir(), "susaplay-zip-")), "build.zip");
+    const zip = join(tempDir("susaplay-zip-"), "build.zip");
     writeFileSync(zip, writeZip(wrapped, { deflate: true }));
     const { report } = await inspect(zip);
     expect(report).toMatchObject({ passed: true, kind: "zip", fileCount: Object.keys(files).length });

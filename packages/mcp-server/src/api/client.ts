@@ -34,6 +34,11 @@ export class ApiClient {
     this.sleep = options.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
   }
 
+  /** The API's origin and path, for links that depend on the environment. */
+  get baseUrl(): string {
+    return this.config.apiBaseUrl;
+  }
+
   get hasKey(): boolean {
     return this.config.apiKey !== null;
   }

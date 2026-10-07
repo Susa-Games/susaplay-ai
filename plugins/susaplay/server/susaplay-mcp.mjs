@@ -3447,7 +3447,7 @@ var recursive = /* @__PURE__ */ new WeakMap();
 var NONE = 0;
 var ASSUMED = 1;
 var PROVEN = 2;
-function isRecursive(inst, stack, resolve3) {
+function isRecursive(inst, stack, resolve4) {
   const cached2 = recursive.get(inst);
   if (cached2 !== void 0)
     return cached2 ? PROVEN : NONE;
@@ -3457,7 +3457,7 @@ function isRecursive(inst, stack, resolve3) {
   let result = NONE;
   const check = (child) => {
     if (result !== PROVEN && child?._zod) {
-      const answer = isRecursive(child, stack, resolve3);
+      const answer = isRecursive(child, stack, resolve4);
       if (answer > result)
         result = answer;
     }
@@ -3468,7 +3468,7 @@ function isRecursive(inst, stack, resolve3) {
       const desc = Object.getOwnPropertyDescriptor(sh, key);
       if (spread && !desc.enumerable)
         continue;
-      const child = desc.get ? ASSUMED : desc.value?._zod ? isRecursive(desc.value, stack, resolve3) : NONE;
+      const child = desc.get ? ASSUMED : desc.value?._zod ? isRecursive(desc.value, stack, resolve4) : NONE;
       if (child > answer)
         answer = child;
     }
@@ -3532,7 +3532,7 @@ function isRecursive(inst, stack, resolve3) {
       break;
     // `$ZodLazy` caches its inner on the def, so a resolved edge is followed exactly
     case "lazy": {
-      const inner = def._cachedInner ?? (resolve3 ? inst._zod.innerType : void 0);
+      const inner = def._cachedInner ?? (resolve4 ? inst._zod.innerType : void 0);
       merge2(inner ? isRecursive(inner, stack, false) : ASSUMED);
       break;
     }
@@ -11233,14 +11233,14 @@ function inputRequiredRoundsExceededMessage(method, maxRounds) {
   return `Multi-round-trip request '${method}' still required input after ${maxRounds} rounds (inputRequired.maxRounds)`;
 }
 function sleep(ms, signal) {
-  return new Promise((resolve3, reject) => {
+  return new Promise((resolve4, reject) => {
     if (signal?.aborted) {
       reject(signal.reason instanceof SdkError ? signal.reason : new SdkError(SdkErrorCode.RequestTimeout, String(signal.reason)));
       return;
     }
     const timer = setTimeout(() => {
       signal?.removeEventListener("abort", onAbort);
-      resolve3();
+      resolve4();
     }, ms);
     const onAbort = () => {
       clearTimeout(timer);
@@ -12039,7 +12039,7 @@ var Protocol = class {
     const flowStartedAt = Date.now();
     let onAbort;
     let cleanupMessageId;
-    return new Promise((resolve3, reject) => {
+    return new Promise((resolve4, reject) => {
       const earlyReject = (error2) => {
         reject(error2);
       };
@@ -12108,7 +12108,7 @@ var Protocol = class {
         }
         if (decoded.kind === "invalid") return reject(decoded.error);
         if (decoded.kind === "input_required") {
-          if (options?.allowInputRequired === true) return resolve3(manualInputRequiredValue(decoded));
+          if (options?.allowInputRequired === true) return resolve4(manualInputRequiredValue(decoded));
           const flow = {
             codec,
             request,
@@ -12120,11 +12120,11 @@ var Protocol = class {
               params
             }, resultSchema, legOptions)
           };
-          return resolve3(this._resolveNonCompleteResult(decoded, flow));
+          return resolve4(this._resolveNonCompleteResult(decoded, flow));
         }
         const result = decoded.result;
         validateStandardSchema(resultSchema, result).then((parseResult) => {
-          if (parseResult.success) resolve3(parseResult.data);
+          if (parseResult.success) resolve4(parseResult.data);
           else reject(new SdkError(SdkErrorCode.InvalidResult, `Invalid result for ${request.method}: ${parseResult.error}`));
         }, reject);
       });
@@ -15040,7 +15040,7 @@ var require_compile = /* @__PURE__ */ __commonJSMin(((exports) => {
     ref = (0, resolve_1.resolveUrl)(this.opts.uriResolver, baseId, ref);
     const schOrFunc = root.refs[ref];
     if (schOrFunc) return schOrFunc;
-    let _sch = resolve3.call(this, root, ref);
+    let _sch = resolve4.call(this, root, ref);
     if (_sch === void 0) {
       const schema = (_a3 = root.localRefs) === null || _a3 === void 0 ? void 0 : _a3[ref];
       const { schemaId } = this.opts;
@@ -15066,7 +15066,7 @@ var require_compile = /* @__PURE__ */ __commonJSMin(((exports) => {
   function sameSchemaEnv(s1, s2) {
     return s1.schema === s2.schema && s1.root === s2.root && s1.baseId === s2.baseId;
   }
-  function resolve3(root, ref) {
+  function resolve4(root, ref) {
     let sch;
     while (typeof (sch = this.refs[ref]) == "string") ref = sch;
     return sch || this.schemas[ref] || resolveSchema.call(this, root, ref);
@@ -15516,7 +15516,7 @@ var require_fast_uri = /* @__PURE__ */ __commonJSMin(((exports, module) => {
     else if (typeof uri === "object") uri = parse2(serialize(uri, options), options);
     return uri;
   }
-  function resolve3(baseURI, relativeURI, options) {
+  function resolve4(baseURI, relativeURI, options) {
     const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
     const resolved = resolveComponent(parse2(baseURI, schemelessOptions), parse2(relativeURI, schemelessOptions), schemelessOptions, true);
     schemelessOptions.skipEscape = true;
@@ -15690,7 +15690,7 @@ var require_fast_uri = /* @__PURE__ */ __commonJSMin(((exports, module) => {
   const fastUri = {
     SCHEMES,
     normalize,
-    resolve: resolve3,
+    resolve: resolve4,
     resolveComponent,
     equal,
     serialize,
@@ -21152,7 +21152,7 @@ var StdioServerTransport = class {
   }
   send(message) {
     if (this._closed) return Promise.reject(/* @__PURE__ */ new Error("StdioServerTransport is closed"));
-    return new Promise((resolve3, reject) => {
+    return new Promise((resolve4, reject) => {
       const json = serializeMessage(message);
       let settled = false;
       const onError = (error2) => {
@@ -21167,14 +21167,14 @@ var StdioServerTransport = class {
         settled = true;
         this._stdout.off("error", onError);
         this._stdout.off("drain", onDrain);
-        resolve3();
+        resolve4();
       };
       this._stdout.once("error", onError);
       if (this._stdout.write(json)) {
         if (settled) return;
         settled = true;
         this._stdout.off("error", onError);
-        resolve3();
+        resolve4();
       } else if (!settled) this._stdout.once("drain", onDrain);
     });
   }
@@ -21228,14 +21228,14 @@ var StdioConnectionChannel = class {
   */
   async whenRequestsAnswered(timeoutMs) {
     if (this._closed || this._pendingRequests.size === 0) return true;
-    return await new Promise((resolve3) => {
+    return await new Promise((resolve4) => {
       const waiter = () => {
         clearTimeout(timer);
-        resolve3(true);
+        resolve4(true);
       };
       const timer = setTimeout(() => {
         this._drainWaiters = this._drainWaiters.filter((pending) => pending !== waiter);
-        resolve3(false);
+        resolve4(false);
       }, timeoutMs);
       this._drainWaiters.push(waiter);
     });
@@ -21652,6 +21652,8 @@ function guidanceFor(error2) {
       return `SusaPlay cannot do this right now.${detail}`;
     case "RATE_LIMITED":
       return `Too many requests with this API key. Wait ${error2.details.retryAfterSeconds ?? 60} seconds before trying again, and avoid calling tools in a loop.`;
+    case "SIGNED_URL_UNAVAILABLE":
+      return "SusaPlay could not prepare the upload: a configuration problem on SusaPlay's side, not in the build. Contact SusaPlay support.";
     case "ANALYTICS_UNAVAILABLE":
       return "Analytics is temporarily unavailable. Try again in a few minutes.";
     case "NETWORK":
@@ -21673,12 +21675,16 @@ var ApiClient = class {
     this.config = config3;
     this.options = options;
     this.fetchImpl = options.fetch ?? ((input, init) => fetch(input, init));
-    this.sleep = options.sleep ?? ((ms) => new Promise((resolve3) => setTimeout(resolve3, ms)));
+    this.sleep = options.sleep ?? ((ms) => new Promise((resolve4) => setTimeout(resolve4, ms)));
   }
   config;
   options;
   fetchImpl;
   sleep;
+  /** The API's origin and path, for links that depend on the environment. */
+  get baseUrl() {
+    return this.config.apiBaseUrl;
+  }
   get hasKey() {
     return this.config.apiKey !== null;
   }
@@ -22556,7 +22562,7 @@ ${games.map((game) => `- ${describeGame(game)}`).join("\n")}` : "This developer 
           maxPendingPerGame: number2(),
           deletedByNextUpload: array(string2()),
           protectedByGracePeriod: array(object({ versionId: string2(), deletableFrom: string2() }))
-        })
+        }).nullable().describe("null when the SusaPlay API does not report its retention policy")
       }),
       annotations: READ_ONLY
     },
@@ -22580,20 +22586,22 @@ ${games.map((game) => `- ${describeGame(game)}`).join("\n")}` : "This developer 
           rejectionReason: cleanText(version2.rejectionReason, 300),
           failure: version2.failure ? { code: str(version2.failure.code), message: cleanText(version2.failure.message, 300) } : null
         }));
-        const policy = gameData.retention;
-        const forecast = retentionForecast(apiVersions, policy, game.liveVersionId);
+        const policy = gameData.retention ?? null;
+        const forecast = policy ? retentionForecast(apiVersions, policy, game.liveVersionId) : null;
         const lines = [describeGame(game)];
         for (const version2 of versions) {
           const reason = version2.failure?.message ?? version2.rejectionReason;
           lines.push(`- ${version2.versionId}: ${version2.status ?? "unknown"}${reason ? ` \u2014 ${reason}` : ""}`);
         }
-        lines.push(
-          `Retention keeps ${policy.maxVersionsPerPlatform} builds, at most ${policy.maxPendingPerGame} in review. ` + (forecast.deletedByNextUpload.length ? `The next upload deletes: ${forecast.deletedByNextUpload.join(", ")}.` : "The next upload deletes nothing.")
-        );
+        if (policy && forecast) {
+          lines.push(
+            `Retention keeps ${policy.maxVersionsPerPlatform} builds, at most ${policy.maxPendingPerGame} in review. ` + (forecast.deletedByNextUpload.length ? `The next upload deletes: ${forecast.deletedByNextUpload.join(", ")}.` : "The next upload deletes nothing.")
+          );
+        }
         return ok(lines.join("\n"), {
           game,
           versions,
-          retention: { ...policy, ...forecast }
+          retention: policy && forecast ? { ...policy, ...forecast } : null
         });
       } catch (error2) {
         return fail(error2);
@@ -22724,6 +22732,8 @@ async function openBuild(path) {
     const prefix2 = singleRootPrefix(kept2.map((file) => file.name));
     return {
       kind: "folder",
+      path,
+      prefix: prefix2,
       entryCount: all.length,
       zippedBytes: null,
       files: new Map(kept2.map((file) => [file.name.slice(prefix2.length), file.size])),
@@ -22752,6 +22762,8 @@ async function openBuild(path) {
   const byName = new Map(kept.map((entry) => [entry.name.slice(prefix.length), entry]));
   return {
     kind: "zip",
+    path,
+    prefix,
     entryCount: archive.entries.length,
     zippedBytes: archive.size,
     files: new Map([...byName].map(([name, entry]) => [name, entry.size])),
@@ -22974,9 +22986,439 @@ function registerInspectBuildTool(server, api, cwd = () => process.cwd(), fetchI
   );
 }
 
+// src/tools/publish.ts
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { isAbsolute as isAbsolute3, join as join8, resolve as resolve3 } from "node:path";
+
+// src/api/upload.ts
+import { createReadStream } from "node:fs";
+import { stat as stat3 } from "node:fs/promises";
+import { request as httpRequest } from "node:http";
+import { request as httpsRequest } from "node:https";
+var UploadError = class extends Error {
+  constructor(status, message) {
+    super(message);
+    this.status = status;
+    this.name = "UploadError";
+  }
+  status;
+};
+var LOCAL_HOSTS = /* @__PURE__ */ new Set(["localhost", "127.0.0.1"]);
+var IDLE_TIMEOUT_MS = 6e4;
+function isAllowedUploadUrl(raw) {
+  let url2;
+  try {
+    url2 = new URL(raw);
+  } catch {
+    return false;
+  }
+  if (LOCAL_HOSTS.has(url2.hostname)) return url2.protocol === "http:" || url2.protocol === "https:";
+  return url2.protocol === "https:" && (url2.hostname === "storage.googleapis.com" || url2.hostname.endsWith(".storage.googleapis.com"));
+}
+async function putFile(url2, filePath, contentType, options = {}) {
+  const { size } = await stat3(filePath);
+  const target = new URL(url2);
+  const send = target.protocol === "https:" ? httpsRequest : httpRequest;
+  await new Promise((resolve4, reject) => {
+    const request = send(target, {
+      method: "PUT",
+      headers: { "Content-Type": contentType, "Content-Length": size },
+      signal: options.signal
+    });
+    request.setTimeout(IDLE_TIMEOUT_MS, () => request.destroy(new Error("the upload stalled")));
+    request.on("error", (error2) => reject(new UploadError(null, error2.message)));
+    request.on("response", (response) => {
+      let body = "";
+      response.setEncoding("utf8");
+      response.on("data", (chunk) => {
+        if (body.length < 2e3) body += chunk;
+      });
+      response.on("end", () => {
+        const status = response.statusCode ?? 0;
+        if (status >= 200 && status < 300) resolve4();
+        else reject(new UploadError(status, /<Code>([^<]+)<\/Code>/.exec(body)?.[1] ?? `HTTP ${status}`));
+      });
+      response.on("error", (error2) => reject(new UploadError(null, error2.message)));
+    });
+    let sent = 0;
+    const file = createReadStream(filePath);
+    file.on("data", (chunk) => {
+      sent += chunk.length;
+      options.onProgress?.(sent, size);
+    });
+    file.on("error", (error2) => request.destroy(error2));
+    file.pipe(request);
+  });
+}
+
+// src/unity/zip-writer.ts
+import { createReadStream as createReadStream2 } from "node:fs";
+import { open as open3 } from "node:fs/promises";
+import { Readable, pipeline } from "node:stream";
+import { createDeflateRaw } from "node:zlib";
+var CRC_TABLE = (() => {
+  const table = new Uint32Array(256);
+  for (let n = 0; n < 256; n += 1) {
+    let c = n;
+    for (let k = 0; k < 8; k += 1) c = c & 1 ? 3988292384 ^ c >>> 1 : c >>> 1;
+    table[n] = c >>> 0;
+  }
+  return table;
+})();
+function crc32(data, previous = 0) {
+  let crc = ~previous >>> 0;
+  for (const byte of data) crc = CRC_TABLE[(crc ^ byte) & 255] ^ crc >>> 8;
+  return ~crc >>> 0;
+}
+var STORED = /\.(br|gz|zip|bundle|png|jpe?g|webp|mp3|ogg|mp4|webm)$/i;
+var UTF8_NAMES = 2048;
+var DOS_TIME = 0;
+var DOS_DATE = 1 << 5 | 1;
+var MAX_OFFSET = 4294967295;
+var ZipTooLargeError = class extends Error {
+};
+function localHeader(name, method, crc, compressed, size) {
+  const header = Buffer.alloc(30);
+  header.writeUInt32LE(67324752, 0);
+  header.writeUInt16LE(20, 4);
+  header.writeUInt16LE(UTF8_NAMES, 6);
+  header.writeUInt16LE(method, 8);
+  header.writeUInt16LE(DOS_TIME, 10);
+  header.writeUInt16LE(DOS_DATE, 12);
+  header.writeUInt32LE(crc, 14);
+  header.writeUInt32LE(compressed, 18);
+  header.writeUInt32LE(size, 22);
+  header.writeUInt16LE(name.length, 26);
+  return Buffer.concat([header, name]);
+}
+function centralHeader(name, method, crc, compressed, size, offset) {
+  const header = Buffer.alloc(46);
+  header.writeUInt32LE(33639248, 0);
+  header.writeUInt16LE(20, 4);
+  header.writeUInt16LE(20, 6);
+  header.writeUInt16LE(UTF8_NAMES, 8);
+  header.writeUInt16LE(method, 10);
+  header.writeUInt16LE(DOS_TIME, 12);
+  header.writeUInt16LE(DOS_DATE, 14);
+  header.writeUInt32LE(crc, 16);
+  header.writeUInt32LE(compressed, 20);
+  header.writeUInt32LE(size, 24);
+  header.writeUInt16LE(name.length, 28);
+  header.writeUInt32LE(offset, 42);
+  return Buffer.concat([header, name]);
+}
+async function writeZip(target, files, onFile) {
+  const handle = await open3(target, "w");
+  try {
+    const central = [];
+    let offset = 0;
+    const write = async (chunk) => {
+      if (offset + chunk.length > MAX_OFFSET) throw new ZipTooLargeError("the zip would exceed 4 GB");
+      await handle.write(chunk, 0, chunk.length, offset);
+      offset += chunk.length;
+    };
+    for (const [index, file] of files.entries()) {
+      const name = Buffer.from(file.name, "utf8");
+      const method = STORED.test(file.name) ? 0 : 8;
+      const headerOffset = offset;
+      await write(localHeader(name, method, 0, 0, 0));
+      let crc = 0;
+      let size = 0;
+      const counted = Readable.from(
+        (async function* () {
+          for await (const chunk of createReadStream2(file.path)) {
+            const bytes = chunk;
+            crc = crc32(bytes, crc);
+            size += bytes.length;
+            yield bytes;
+          }
+        })()
+      );
+      let output = counted;
+      if (method === 8) {
+        const deflate = createDeflateRaw({ level: 6 });
+        pipeline(counted, deflate, () => void 0);
+        output = deflate;
+      }
+      const dataStart = offset;
+      for await (const chunk of output) await write(chunk);
+      const compressed = offset - dataStart;
+      await handle.write(localHeader(name, method, crc, compressed, size), 0, 30 + name.length, headerOffset);
+      central.push(centralHeader(name, method, crc, compressed, size, headerOffset));
+      await onFile?.(index + 1, files.length);
+    }
+    const directory = Buffer.concat(central);
+    const directoryOffset = offset;
+    await write(directory);
+    const end = Buffer.alloc(22);
+    end.writeUInt32LE(101010256, 0);
+    end.writeUInt16LE(files.length, 8);
+    end.writeUInt16LE(files.length, 10);
+    end.writeUInt32LE(directory.length, 12);
+    end.writeUInt32LE(directoryOffset, 16);
+    await write(end);
+    return offset;
+  } finally {
+    await handle.close();
+  }
+}
+
+// src/tools/publish.ts
+var VERSION_PATTERN = /^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$/;
+var IN_FLIGHT = /* @__PURE__ */ new Set(["processing", "extracting"]);
+var IN_REVIEW = /* @__PURE__ */ new Set(["pending_review", "processing", "extracting"]);
+var POLL_LIMIT_MS = 15 * 60 * 1e3;
+var POLL_FIRST_MS = 2e3;
+var POLL_MAX_MS = 1e4;
+var PLAYER_PORTAL = "https://susaplay.com";
+var STAGING_PLAYER_PORTAL = "https://susaplay-player-staging.web.app";
+var MB2 = (bytes) => `${Math.round(bytes / (1024 * 1024))} MB`;
+var versionIdSchema = string2().regex(VERSION_PATTERN, "A version is x.y.z, such as 1.0.9, optionally with a suffix such as 1.0.9-beta").describe("The new build's version, x.y.z \u2014 higher than the game's latest");
+function nextPatchVersion(versionIds) {
+  const parsed = versionIds.map((id) => /^([0-9]+)\.([0-9]+)\.([0-9]+)/.exec(id)).filter((match) => match !== null).map((match) => [Number(match[1]), Number(match[2]), Number(match[3])]).sort((a, b) => b[0] - a[0] || b[1] - a[1] || b[2] - a[2]);
+  const top = parsed[0];
+  return top ? `${top[0]}.${top[1]}.${top[2] + 1}` : null;
+}
+function playerPortalBase(apiBaseUrl) {
+  const host = new URL(apiBaseUrl).hostname;
+  return host.includes("susaplaytest") || host.includes("staging") ? STAGING_PLAYER_PORTAL : PLAYER_PORTAL;
+}
+function versionPath(gameId, versionId) {
+  return `/catalog/game/${encodeURIComponent(gameId)}/versions/${encodeURIComponent(versionId)}`;
+}
+function inReviewList(versions) {
+  return versions.filter((version2) => IN_REVIEW.has(version2.status ?? "")).map((version2) => `${version2.versionId} (${version2.status})`).join(", ");
+}
+async function zipFolder(build2, target, progress) {
+  const names = [...build2.files.keys()].sort();
+  return writeZip(
+    target,
+    names.map((name) => ({ name, path: join8(build2.path, build2.prefix, name) })),
+    (done, total) => progress(done, total, `Zipping ${done}/${total} files`)
+  );
+}
+async function upload(api, gameId, versionId, zipPath, progress, signal) {
+  for (let attempt = 0; ; attempt += 1) {
+    const signed = await api.post("/catalog/get-upload-url", { gameId, versionId, platform: "webgl" });
+    if (!isAllowedUploadUrl(signed.uploadUrl)) {
+      throw new ApiError("SIGNED_URL_UNAVAILABLE", "the upload URL is not a Cloud Storage URL", 0);
+    }
+    let reported = -1;
+    try {
+      await putFile(signed.uploadUrl, zipPath, "application/zip", {
+        signal,
+        onProgress: (sent, total) => {
+          const percent2 = Math.floor(sent / total * 100);
+          if (percent2 === reported) return;
+          reported = percent2;
+          void progress(sent, total, `Uploading ${MB2(sent)} of ${MB2(total)}`);
+        }
+      });
+      return;
+    } catch (error2) {
+      if (signal?.aborted) throw new ToolInputError("The upload was cancelled. Nothing was published.");
+      const retryable = error2 instanceof UploadError && (error2.status === null || error2.status === 408 || error2.status >= 500);
+      if (retryable && attempt === 0) continue;
+      if (error2 instanceof UploadError) {
+        throw new ToolInputError(`The upload to storage failed (${error2.message}). Nothing was published; try again.`);
+      }
+      throw error2;
+    }
+  }
+}
+async function publishBuild(input, deps) {
+  const { api, gameId, versionId } = { ...deps, ...input };
+  const sleep2 = deps.sleep ?? ((ms) => new Promise((done) => setTimeout(done, ms)));
+  const now = deps.now ?? Date.now;
+  const progress = deps.progress ?? (async () => void 0);
+  const gamePath = `/catalog/game/${encodeURIComponent(gameId)}`;
+  const build2 = await openBuild(input.buildPath);
+  let tempDir = null;
+  try {
+    const report = await inspectBuild(build2, { gameId, serverDataPath: input.serverDataPath, api, fetch: deps.fetch });
+    if (!report.passed) {
+      const errors = report.findings.filter((finding) => finding.severity === "error");
+      throw new ToolInputError(
+        `Not published: the build has ${errors.length} problem(s). Fix them and rebuild:
+` + errors.map((finding) => `- ${finding.id}: ${finding.message}`).join("\n")
+      );
+    }
+    const [{ retention }, { versions: before = [] }] = await Promise.all([
+      api.get(gamePath),
+      api.get(`${gamePath}/versions`)
+    ]);
+    const existing = before.find((version3) => version3.versionId === versionId);
+    if (existing && existing.status !== "failed") {
+      const next = nextPatchVersion(before.map((version3) => version3.versionId));
+      throw new ToolInputError(`Version ${versionId} already exists (${existing.status}).${next ? ` Use ${next}.` : ""}`);
+    }
+    const inReview = before.filter((version3) => IN_REVIEW.has(version3.status ?? ""));
+    if (retention && inReview.length >= retention.maxPendingPerGame) {
+      throw new ToolInputError(
+        `This game already has ${inReview.length} builds waiting for review or processing: ${inReviewList(before)}. At most ${retention.maxPendingPerGame} are allowed. Wait for a review, or remove one in the Developer Portal.`
+      );
+    }
+    let zipPath = build2.path;
+    let zipBytes = build2.zippedBytes ?? 0;
+    if (build2.kind === "folder") {
+      tempDir = await mkdtemp(join8(tmpdir(), "susaplay-build-zip-"));
+      zipPath = join8(tempDir, "build.zip");
+      zipBytes = await zipFolder(build2, zipPath, progress);
+      if (zipBytes > MAX_ZIP_BYTES) {
+        throw new ToolInputError(`Not published: the zipped build is ${MB2(zipBytes)}; the limit is 500 MB.`);
+      }
+    }
+    try {
+      await upload(api, gameId, versionId, zipPath, progress, deps.signal);
+      await api.post(`/catalog/process-build`, {
+        gameId,
+        versionId,
+        platform: "webgl",
+        ...input.notes ? { notes: input.notes } : {}
+      });
+    } catch (error2) {
+      if (error2 instanceof ApiError && error2.code === "DUPLICATE") {
+        const next = nextPatchVersion(before.map((version3) => version3.versionId));
+        throw new ToolInputError(`Version ${versionId} already exists.${next ? ` Use ${next}.` : ""}`);
+      }
+      if (error2 instanceof ApiError && error2.code === "FAILED_PRECONDITION") {
+        const listed2 = inReviewList(before);
+        throw new ToolInputError(
+          `SusaPlay refused the upload: ${error2.message || "too many builds are waiting for review"}${listed2 ? ` In review or processing: ${listed2}.` : ""}`
+        );
+      }
+      throw error2;
+    }
+    const deadline = now() + POLL_LIMIT_MS;
+    let delay = POLL_FIRST_MS;
+    let version2 = { versionId, status: "processing" };
+    while (!deps.signal?.aborted) {
+      await progress(0, void 0, `SusaPlay is processing ${versionId}`);
+      await sleep2(delay);
+      if (deps.signal?.aborted) break;
+      version2 = (await api.get(versionPath(gameId, versionId))).version;
+      if (!IN_FLIGHT.has(version2.status ?? "") || now() >= deadline) break;
+      delay = Math.min(POLL_MAX_MS, Math.round(delay * 1.5));
+    }
+    let prunedVersions = [];
+    if (version2.status === "pending_review") {
+      const { versions: after = [] } = await api.get(`${gamePath}/versions`);
+      const remaining = new Set(after.map((entry) => entry.versionId));
+      prunedVersions = before.map((entry) => entry.versionId).filter((id) => id !== versionId && !remaining.has(id));
+    }
+    const failure2 = version2.failure ? { code: version2.failure.code ?? null, message: cleanText(version2.failure.message, 300) } : null;
+    const status = version2.status ?? "processing";
+    const nextStep = status === "pending_review" ? "The build is waiting for SusaPlay's review; players see it once it is approved. Offer create_preview_link to play it first." : status === "failed" ? `Processing failed${failure2?.message ? `: ${failure2.message}` : ""}. Fix the build and publish again \u2014 the same version number may be reused.` : `Still processing. Check later with get_game ${gameId}; a build stuck for more than 15 minutes is reported as failed and may be uploaded again.`;
+    return {
+      gameId,
+      versionId,
+      status,
+      failure: failure2,
+      fileCount: report.fileCount,
+      zipBytes,
+      prunedVersions,
+      findings: report.findings,
+      nextStep
+    };
+  } finally {
+    await build2.close();
+    if (tempDir) await rm(tempDir, { recursive: true, force: true });
+  }
+}
+function progressFor(ctx) {
+  const token = ctx.mcpReq._meta?.progressToken;
+  let step = 0;
+  return async (progress, total, message) => {
+    if (token === void 0) return;
+    step = Math.max(step + 1, progress);
+    await ctx.mcpReq.notify({ method: "notifications/progress", params: { progressToken: token, progress: step, ...total ? { total: Math.max(total, step) } : {}, message } }).catch(() => void 0);
+  };
+}
+function registerPublishTools(server, api, cwd = () => process.cwd(), fetchImpl) {
+  server.registerTool(
+    "publish_build",
+    {
+      title: "Publish a WebGL build for review",
+      description: "Uploads a Unity WebGL build \u2014 its folder or .zip \u2014 to SusaPlay as a new version for review. It runs inspect_build first and stops on any error, zips a folder, uploads it with progress, and waits up to 15 minutes for SusaPlay to process it. Players do not see the build until SusaPlay approves it. Retention may delete old builds that are not live or in review \u2014 get_game shows which. Use a version number higher than the game's latest.",
+      inputSchema: object({
+        gameId: gameIdSchema,
+        versionId: versionIdSchema,
+        buildPath: string2().describe("The WebGL build output folder, or its .zip"),
+        notes: string2().max(1e3).optional().describe("What changed, for the reviewer"),
+        serverDataPath: string2().optional().describe("Addressables content built with this build and published with it, such as ServerData/WebGL")
+      }),
+      outputSchema: object({
+        gameId: string2(),
+        versionId: string2(),
+        status: string2(),
+        failure: object({ code: string2().nullable(), message: string2().nullable() }).nullable(),
+        fileCount: number2(),
+        zipBytes: number2(),
+        prunedVersions: array(string2()),
+        findings: array(object({ id: string2(), severity: _enum(["error", "warning", "info"]), message: string2(), file: string2().optional() })),
+        nextStep: string2()
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true }
+    },
+    async ({ gameId, versionId, buildPath, notes, serverDataPath }, ctx) => {
+      const absolute = (path) => isAbsolute3(path) ? path : resolve3(cwd(), path);
+      try {
+        const result = await publishBuild(
+          { gameId, versionId, buildPath: absolute(buildPath), notes, serverDataPath: serverDataPath ? absolute(serverDataPath) : void 0 },
+          { api, fetch: fetchImpl, progress: progressFor(ctx), signal: ctx.mcpReq.signal }
+        );
+        const lines = [
+          `${result.versionId}: ${result.status}. ${result.fileCount} files, ${MB2(result.zipBytes)} zipped.`,
+          ...result.prunedVersions.length ? [`Retention deleted: ${result.prunedVersions.join(", ")}.`] : [],
+          ...result.findings.map((finding) => `- ${finding.id} ${finding.severity}: ${finding.message}`),
+          result.nextStep
+        ];
+        return ok(lines.join("\n"), { ...result });
+      } catch (error2) {
+        return fail(error2);
+      }
+    }
+  );
+  server.registerTool(
+    "create_preview_link",
+    {
+      title: "Create a preview link for a build in review",
+      description: "Creates a link to play a build that is waiting for review, on the SusaPlay player site. The link works once and expires in 30 minutes; create a new one to play again. Only builds in pending_review can be previewed.",
+      inputSchema: object({ gameId: gameIdSchema, versionId: versionIdSchema.describe("A version in pending_review") }),
+      outputSchema: object({ gameId: string2(), versionId: string2(), url: string2(), expiresAt: string2().nullable() }),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true }
+    },
+    async ({ gameId, versionId }) => {
+      try {
+        let session;
+        try {
+          session = await api.post(`${versionPath(gameId, versionId)}/preview-session`, {});
+        } catch (error2) {
+          if (error2 instanceof ApiError && error2.code === "NOT_FOUND") {
+            throw new ToolInputError(
+              `${gameId} has no build ${versionId} waiting for review. Only a pending_review build can be previewed; get_game lists the builds.`
+            );
+          }
+          throw error2;
+        }
+        const url2 = `${playerPortalBase(api.baseUrl)}/play/${encodeURIComponent(gameId)}?previewSession=${encodeURIComponent(session.launchToken)}`;
+        const expiresAt = typeof session.expiresAt === "string" ? session.expiresAt : null;
+        return ok(
+          `Preview ${versionId}: ${url2}
+The link works once and expires ${expiresAt ? `at ${expiresAt}` : "in 30 minutes"}. Do not share it; create a new one to play again.`,
+          { gameId, versionId, url: url2, expiresAt }
+        );
+      } catch (error2) {
+        return fail(error2);
+      }
+    }
+  );
+}
+
 // src/tools/simulator.ts
 import { mkdir, writeFile } from "node:fs/promises";
-import { dirname, join as join8 } from "node:path";
+import { dirname, join as join9 } from "node:path";
 function registerSimulatorTools(server, api, cwd = () => process.cwd()) {
   server.registerTool(
     "sync_simulator_config",
@@ -23023,7 +23465,7 @@ function registerSimulatorTools(server, api, cwd = () => process.cwd()) {
             `Game ${targetId} is not the game this project is set up for: its game key differs from the one in ${PLATFORM_CONFIG_PATH}. Nothing was written.`
           );
         }
-        const file = join8(root, SIMULATOR_CONFIG_PATH);
+        const file = join9(root, SIMULATOR_CONFIG_PATH);
         await mkdir(dirname(file), { recursive: true });
         await writeFile(file, `${JSON.stringify(config3, null, 2)}
 `, "utf8");
@@ -23062,6 +23504,7 @@ function createServer(dependencies = {}) {
   registerSimulatorTools(server, api, dependencies.cwd);
   registerCheckProjectTool(server, api, dependencies.cwd);
   registerInspectBuildTool(server, api, dependencies.cwd, dependencies.fetch);
+  registerPublishTools(server, api, dependencies.cwd, dependencies.fetch);
   return server;
 }
 

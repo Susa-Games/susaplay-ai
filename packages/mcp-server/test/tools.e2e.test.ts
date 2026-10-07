@@ -32,6 +32,9 @@ const SIMULATOR_CONFIG = {
 const routes: Record<string, unknown> = {
   "/catalog/games": { games: [GAME, { ...GAME, gameId: "g2", name: "Other", gameKey: "gk_other" }] },
   "/catalog/game/g1": { game: GAME, retention: { maxVersionsPerPlatform: 5, minAgeHours: 24, maxPendingPerGame: 3 } },
+  // An API from before the retention policy was returned with the game.
+  "/catalog/game/g2": { game: { ...GAME, gameId: "g2", name: "Other" } },
+  "/catalog/game/g2/versions": { versions: [] },
   "/catalog/game/g1/versions": {
     versions: [
       { versionId: "1.0.2", platform: "webgl", status: "pending_review", uploadedAt: "2026-10-06T10:00:00+00:00", notes: "new\u0000 levels" },
@@ -58,6 +61,13 @@ const routes: Record<string, unknown> = {
     retention: { d1: 0.5, d7: 0.25, d30: null },
   },
   "/catalog/game/g1/simulator-config": SIMULATOR_CONFIG,
+  "/catalog/game/g1/versions/1.0.2/preview-session": {
+    sessionId: "s1",
+    gameId: "g1",
+    versionId: "1.0.2",
+    launchToken: "lt one",
+    expiresAt: "2026-10-07T12:30:00+00:00",
+  },
 };
 
 let api: Server;
@@ -112,18 +122,20 @@ afterAll(() => {
 });
 
 describe("read tools against the API", () => {
-  it("lists every read tool with read-only annotations, and sync as a write", async () => {
+  it("lists every tool: reads as read-only, sync, publish and preview as writes", async () => {
     const mcp = session();
     await mcp.open();
     const { result } = await mcp.request("tools/list");
     const tools = Object.fromEntries(result.tools.map((tool: any) => [tool.name, tool]));
     expect(Object.keys(tools).sort()).toEqual([
       "check_project",
+      "create_preview_link",
       "get_addressables",
       "get_analytics",
       "get_game",
       "inspect_build",
       "list_games",
+      "publish_build",
       "sync_simulator_config",
     ]);
     for (const name of ["list_games", "get_game", "get_addressables", "get_analytics", "check_project", "inspect_build"]) {
@@ -131,6 +143,10 @@ describe("read tools against the API", () => {
       expect(tools[name].outputSchema).toBeDefined();
     }
     expect(tools.sync_simulator_config.annotations).toMatchObject({ readOnlyHint: false, destructiveHint: false, idempotentHint: true });
+    for (const name of ["publish_build", "create_preview_link"]) {
+      expect(tools[name].annotations).toMatchObject({ readOnlyHint: false, destructiveHint: false, idempotentHint: false });
+    }
+    expect(tools.publish_build.description).toContain("Retention");
   });
 
   it("list_games shows names first and sends the key with a User-Agent naming the client", async () => {
@@ -150,6 +166,14 @@ describe("read tools against the API", () => {
     const result = await mcp.callTool("get_game", { gameId: "g1" });
     expect(result.structuredContent.versions[0]).toMatchObject({ versionId: "1.0.2", notes: "new levels" });
     expect(result.structuredContent.retention).toMatchObject({ maxVersionsPerPlatform: 5, deletedByNextUpload: [] });
+  });
+
+  it("get_game works with an API that does not return the retention policy", async () => {
+    const mcp = session();
+    await mcp.open();
+    const result = await mcp.callTool("get_game", { gameId: "g2" });
+    expect(result.isError).toBeFalsy();
+    expect(result.structuredContent.retention).toBeNull();
   });
 
   it("get_addressables says what staging is missing", async () => {
@@ -178,6 +202,31 @@ describe("read tools against the API", () => {
     const result = await mcp.callTool("get_game", { gameId: "nope" });
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain("Use list_games");
+  });
+});
+
+describe("create_preview_link", () => {
+  it("returns a single-use link on the player site", async () => {
+    const mcp = session();
+    await mcp.open();
+    const result = await mcp.callTool("create_preview_link", { gameId: "g1", versionId: "1.0.2" });
+    expect(result.isError).toBeFalsy();
+    expect(result.structuredContent).toEqual({
+      gameId: "g1",
+      versionId: "1.0.2",
+      url: "https://susaplay.com/play/g1?previewSession=lt%20one",
+      expiresAt: "2026-10-07T12:30:00+00:00",
+    });
+    expect(result.content[0].text).toContain("works once");
+    expect(seen.at(-1)!.method).toBe("POST");
+  });
+
+  it("explains that only a build in review can be previewed", async () => {
+    const mcp = session();
+    await mcp.open();
+    const result = await mcp.callTool("create_preview_link", { gameId: "g1", versionId: "1.0.1" });
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain("Only a pending_review build can be previewed");
   });
 });
 

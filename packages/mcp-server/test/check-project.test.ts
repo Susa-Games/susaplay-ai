@@ -1,8 +1,11 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 
 import { ApiClient } from "../src/api/client.js";
 import { checkProject } from "../src/tools/check-project.js";
+import { removeTempDirs } from "./support/temp.js";
 import { makeProject } from "./support/unity-project.js";
+
+afterAll(removeTempDirs);
 
 const offline = new ApiClient({ apiKey: null, apiBaseUrl: "https://api.test" });
 
