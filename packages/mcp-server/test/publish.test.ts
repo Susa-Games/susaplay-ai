@@ -54,6 +54,8 @@ interface FakeApi {
   polls: Array<Record<string, unknown>>;
   calls: string[];
   bodies: Record<string, unknown>;
+  /** `false` for an API from before the policy was returned with the game. */
+  retention: boolean;
   uploadUrl?: string;
 }
 
@@ -74,6 +76,7 @@ beforeEach(() => {
     polls: [{ versionId: "1.0.3", status: "extracting" }, { versionId: "1.0.3", status: "pending_review" }],
     calls: [],
     bodies: {},
+    retention: true,
   };
 });
 
@@ -85,7 +88,8 @@ function client(): ApiClient {
     if (init.body) fake.bodies[path] = JSON.parse(String(init.body));
     const reply = (data: unknown, status = 200) => new Response(JSON.stringify({ success: true, data }), { status });
     if (path === `/catalog/game/${GAME}`) {
-      return reply({ game: { gameId: GAME }, retention: { maxVersionsPerPlatform: 2, minAgeHours: 24, maxPendingPerGame: 3 } });
+      const retention = { maxVersionsPerPlatform: 2, minAgeHours: 24, maxPendingPerGame: 3 };
+      return reply({ game: { gameId: GAME }, ...(fake.retention ? { retention } : {}) });
     }
     if (path === `/catalog/game/${GAME}/versions`) {
       listed += 1;
@@ -171,6 +175,12 @@ describe("publishBuild", () => {
     const error = await publish({ versionId: "1.0.7" }).catch((caught) => caught);
     expect(error.message).toContain("1.0.4 (pending_review), 1.0.5 (pending_review), 1.0.6 (pending_review)");
     expect(uploads).toHaveLength(0);
+  });
+
+  it("publishes through an API that does not return the retention policy", async () => {
+    fake.retention = false;
+    const { result } = await publish();
+    expect(result.status).toBe("pending_review");
   });
 
   it("reports a build that failed processing", async () => {

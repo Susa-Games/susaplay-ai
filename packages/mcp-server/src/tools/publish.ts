@@ -160,7 +160,7 @@ export async function publishBuild(
 
     // What the server would refuse anyway, found before minutes of zipping and uploading.
     const [{ retention }, { versions: before = [] }] = await Promise.all([
-      api.get<{ game: ApiGame; retention: RetentionPolicy }>(gamePath),
+      api.get<{ game: ApiGame; retention?: RetentionPolicy }>(gamePath),
       api.get<{ versions: ApiVersion[] }>(`${gamePath}/versions`),
     ]);
     const existing = before.find((version) => version.versionId === versionId);
@@ -169,7 +169,8 @@ export async function publishBuild(
       throw new ToolInputError(`Version ${versionId} already exists (${existing.status}).${next ? ` Use ${next}.` : ""}`);
     }
     const inReview = before.filter((version) => IN_REVIEW.has(version.status ?? ""));
-    if (inReview.length >= retention.maxPendingPerGame) {
+    // Without the policy (an older API), the server's own check at get-upload-url still applies.
+    if (retention && inReview.length >= retention.maxPendingPerGame) {
       throw new ToolInputError(
         `This game already has ${inReview.length} builds waiting for review or processing: ${inReviewList(before)}. ` +
           `At most ${retention.maxPendingPerGame} are allowed. Wait for a review, or remove one in the Developer Portal.`,

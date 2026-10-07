@@ -119,13 +119,16 @@ export function registerGameTools(server: McpServer, api: ApiClient): void {
       outputSchema: z.object({
         game: gameSummarySchema,
         versions: z.array(versionSchema),
-        retention: z.object({
-          maxVersionsPerPlatform: z.number(),
-          minAgeHours: z.number(),
-          maxPendingPerGame: z.number(),
-          deletedByNextUpload: z.array(z.string()),
-          protectedByGracePeriod: z.array(z.object({ versionId: z.string(), deletableFrom: z.string() })),
-        }),
+        retention: z
+          .object({
+            maxVersionsPerPlatform: z.number(),
+            minAgeHours: z.number(),
+            maxPendingPerGame: z.number(),
+            deletedByNextUpload: z.array(z.string()),
+            protectedByGracePeriod: z.array(z.object({ versionId: z.string(), deletableFrom: z.string() })),
+          })
+          .nullable()
+          .describe("null when the SusaPlay API does not report its retention policy"),
       }),
       annotations: READ_ONLY,
     },
@@ -133,7 +136,7 @@ export function registerGameTools(server: McpServer, api: ApiClient): void {
       try {
         const id = encodeURIComponent(gameId);
         const [gameData, versionData] = await Promise.all([
-          api.get<{ game: ApiGame; retention: RetentionPolicy }>(`/catalog/game/${id}`),
+          api.get<{ game: ApiGame; retention?: RetentionPolicy }>(`/catalog/game/${id}`),
           api.get<{ versions: ApiVersion[] }>(`/catalog/game/${id}/versions`),
         ]);
         const game = summarizeGame(gameData.game);
@@ -151,24 +154,27 @@ export function registerGameTools(server: McpServer, api: ApiClient): void {
             ? { code: str(version.failure.code), message: cleanText(version.failure.message, 300) }
             : null,
         }));
-        const policy = gameData.retention;
-        const forecast = retentionForecast(apiVersions, policy, game.liveVersionId);
+        // An API from before the policy was returned with the game has none to forecast with.
+        const policy = gameData.retention ?? null;
+        const forecast = policy ? retentionForecast(apiVersions, policy, game.liveVersionId) : null;
 
         const lines = [describeGame(game)];
         for (const version of versions) {
           const reason = version.failure?.message ?? version.rejectionReason;
           lines.push(`- ${version.versionId}: ${version.status ?? "unknown"}${reason ? ` — ${reason}` : ""}`);
         }
-        lines.push(
-          `Retention keeps ${policy.maxVersionsPerPlatform} builds, at most ${policy.maxPendingPerGame} in review. ` +
-            (forecast.deletedByNextUpload.length
-              ? `The next upload deletes: ${forecast.deletedByNextUpload.join(", ")}.`
-              : "The next upload deletes nothing."),
-        );
+        if (policy && forecast) {
+          lines.push(
+            `Retention keeps ${policy.maxVersionsPerPlatform} builds, at most ${policy.maxPendingPerGame} in review. ` +
+              (forecast.deletedByNextUpload.length
+                ? `The next upload deletes: ${forecast.deletedByNextUpload.join(", ")}.`
+                : "The next upload deletes nothing."),
+          );
+        }
         return ok(lines.join("\n"), {
           game,
           versions,
-          retention: { ...policy, ...forecast },
+          retention: policy && forecast ? { ...policy, ...forecast } : null,
         });
       } catch (error) {
         return fail(error);

@@ -32,6 +32,9 @@ const SIMULATOR_CONFIG = {
 const routes: Record<string, unknown> = {
   "/catalog/games": { games: [GAME, { ...GAME, gameId: "g2", name: "Other", gameKey: "gk_other" }] },
   "/catalog/game/g1": { game: GAME, retention: { maxVersionsPerPlatform: 5, minAgeHours: 24, maxPendingPerGame: 3 } },
+  // An API from before the retention policy was returned with the game.
+  "/catalog/game/g2": { game: { ...GAME, gameId: "g2", name: "Other" } },
+  "/catalog/game/g2/versions": { versions: [] },
   "/catalog/game/g1/versions": {
     versions: [
       { versionId: "1.0.2", platform: "webgl", status: "pending_review", uploadedAt: "2026-10-06T10:00:00+00:00", notes: "new\u0000 levels" },
@@ -163,6 +166,14 @@ describe("read tools against the API", () => {
     const result = await mcp.callTool("get_game", { gameId: "g1" });
     expect(result.structuredContent.versions[0]).toMatchObject({ versionId: "1.0.2", notes: "new levels" });
     expect(result.structuredContent.retention).toMatchObject({ maxVersionsPerPlatform: 5, deletedByNextUpload: [] });
+  });
+
+  it("get_game works with an API that does not return the retention policy", async () => {
+    const mcp = session();
+    await mcp.open();
+    const result = await mcp.callTool("get_game", { gameId: "g2" });
+    expect(result.isError).toBeFalsy();
+    expect(result.structuredContent.retention).toBeNull();
   });
 
   it("get_addressables says what staging is missing", async () => {

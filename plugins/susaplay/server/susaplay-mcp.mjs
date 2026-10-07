@@ -22562,7 +22562,7 @@ ${games.map((game) => `- ${describeGame(game)}`).join("\n")}` : "This developer 
           maxPendingPerGame: number2(),
           deletedByNextUpload: array(string2()),
           protectedByGracePeriod: array(object({ versionId: string2(), deletableFrom: string2() }))
-        })
+        }).nullable().describe("null when the SusaPlay API does not report its retention policy")
       }),
       annotations: READ_ONLY
     },
@@ -22586,20 +22586,22 @@ ${games.map((game) => `- ${describeGame(game)}`).join("\n")}` : "This developer 
           rejectionReason: cleanText(version2.rejectionReason, 300),
           failure: version2.failure ? { code: str(version2.failure.code), message: cleanText(version2.failure.message, 300) } : null
         }));
-        const policy = gameData.retention;
-        const forecast = retentionForecast(apiVersions, policy, game.liveVersionId);
+        const policy = gameData.retention ?? null;
+        const forecast = policy ? retentionForecast(apiVersions, policy, game.liveVersionId) : null;
         const lines = [describeGame(game)];
         for (const version2 of versions) {
           const reason = version2.failure?.message ?? version2.rejectionReason;
           lines.push(`- ${version2.versionId}: ${version2.status ?? "unknown"}${reason ? ` \u2014 ${reason}` : ""}`);
         }
-        lines.push(
-          `Retention keeps ${policy.maxVersionsPerPlatform} builds, at most ${policy.maxPendingPerGame} in review. ` + (forecast.deletedByNextUpload.length ? `The next upload deletes: ${forecast.deletedByNextUpload.join(", ")}.` : "The next upload deletes nothing.")
-        );
+        if (policy && forecast) {
+          lines.push(
+            `Retention keeps ${policy.maxVersionsPerPlatform} builds, at most ${policy.maxPendingPerGame} in review. ` + (forecast.deletedByNextUpload.length ? `The next upload deletes: ${forecast.deletedByNextUpload.join(", ")}.` : "The next upload deletes nothing.")
+          );
+        }
         return ok(lines.join("\n"), {
           game,
           versions,
-          retention: { ...policy, ...forecast }
+          retention: policy && forecast ? { ...policy, ...forecast } : null
         });
       } catch (error2) {
         return fail(error2);
@@ -23252,7 +23254,7 @@ async function publishBuild(input, deps) {
       throw new ToolInputError(`Version ${versionId} already exists (${existing.status}).${next ? ` Use ${next}.` : ""}`);
     }
     const inReview = before.filter((version3) => IN_REVIEW.has(version3.status ?? ""));
-    if (inReview.length >= retention.maxPendingPerGame) {
+    if (retention && inReview.length >= retention.maxPendingPerGame) {
       throw new ToolInputError(
         `This game already has ${inReview.length} builds waiting for review or processing: ${inReviewList(before)}. At most ${retention.maxPendingPerGame} are allowed. Wait for a review, or remove one in the Developer Portal.`
       );
