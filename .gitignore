@@ -3,3 +3,5 @@ packages/mcp-server/dist/
 coverage/
 *.log
 .DS_Store
+packages/mcp-server/LICENSE
+packages/mcp-server/NOTICE
