@@ -7,6 +7,11 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: development
+    ignore:
+      # The bundled server supports Node.js 20, so the types stay on Node.js 20:
+      # newer ones would let code use APIs that Node.js 20 does not have.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
