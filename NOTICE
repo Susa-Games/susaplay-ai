@@ -1,0 +1,8 @@
+SusaPlay AI tools
+Copyright 2026 Susa Games
+
+This product includes software developed at Susa Games (https://susaplay.com).
+
+The bundled MCP server (plugins/susaplay/server/susaplay-mcp.mjs) contains
+third-party packages under their own licenses; their license notices are kept
+at the end of that file.

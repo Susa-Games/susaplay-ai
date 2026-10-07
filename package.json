@@ -1,0 +1,17 @@
+{
+  "name": "susaplay-ai",
+  "private": true,
+  "description": "SusaPlay tools for AI coding assistants: the MCP server and the Claude Code and Cursor plugins",
+  "license": "Apache-2.0",
+  "workspaces": [
+    "packages/mcp-server"
+  ],
+  "scripts": {
+    "build": "npm run build -w @susaplay/mcp",
+    "test": "npm run test -w @susaplay/mcp",
+    "typecheck": "npm run typecheck -w @susaplay/mcp"
+  },
+  "engines": {
+    "node": ">=22.12"
+  }
+}

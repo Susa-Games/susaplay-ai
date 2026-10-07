@@ -1,0 +1,5 @@
+node_modules/
+packages/mcp-server/dist/
+coverage/
+*.log
+.DS_Store
