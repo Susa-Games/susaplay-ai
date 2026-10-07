@@ -1,12 +1,11 @@
 // Runs the bundled file the way Claude Code and Cursor do — `node <file>` over
 // stdio — so what is tested is what developers run.
-import { execFileSync, spawn } from "node:child_process";
+import { spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-const packageDir = fileURLToPath(new URL("..", import.meta.url));
 const bundle = fileURLToPath(new URL("../dist/susaplay-mcp.mjs", import.meta.url));
 const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as {
   version: string;
@@ -30,7 +29,8 @@ function talk(messages: object[], expected: number): Promise<Session> {
     }, 10_000);
     child.stdout.on("data", (chunk) => {
       stdout += chunk;
-      const lines = stdout.split("\n").filter((line) => line.trim());
+      // Only lines ended by a newline are whole messages.
+      const lines = stdout.split("\n").slice(0, -1).filter((line) => line.trim());
       if (lines.length >= expected) {
         clearTimeout(timer);
         child.stdin.end();
@@ -49,10 +49,6 @@ function talk(messages: object[], expected: number): Promise<Session> {
 }
 
 describe("the bundled server", () => {
-  beforeAll(() => {
-    execFileSync(process.execPath, ["build.mjs"], { cwd: packageDir, stdio: "ignore" });
-  });
-
   it("answers the opening handshake with its name and version", async () => {
     const session = await talk(
       [

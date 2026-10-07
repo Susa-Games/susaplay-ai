@@ -319,14 +319,14 @@ function promiseAllObject(promisesObj) {
 }
 function randomString(length = 10) {
   const chars = "abcdefghijklmnopqrstuvwxyz";
-  let str = "";
+  let str2 = "";
   for (let i = 0; i < length; i++) {
-    str += chars[Math.floor(Math.random() * chars.length)];
+    str2 += chars[Math.floor(Math.random() * chars.length)];
   }
-  return str;
+  return str2;
 }
-function esc(str) {
-  return JSON.stringify(str);
+function esc(str2) {
+  return JSON.stringify(str2);
 }
 function slugify(input) {
   return input.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
@@ -440,8 +440,8 @@ var primitiveTypes = /* @__PURE__ */ new Set([
   "symbol",
   "undefined"
 ]);
-function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function escapeRegex(str2) {
+  return str2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 function clone(inst, def, params) {
   const cl = new inst._zod.constr(def ?? inst._zod.def);
@@ -661,7 +661,7 @@ function attachSchema(issues, start, inst) {
     (_a3 = issues[i]).schema ?? (_a3.schema = inst);
   }
 }
-function finalizeIssue(iss, ctx, config2) {
+function finalizeIssue(iss, ctx, config3) {
   var _a3;
   const traits = iss.inst?._zod?.traits;
   if (traits?.has("$ZodType")) {
@@ -671,7 +671,7 @@ function finalizeIssue(iss, ctx, config2) {
       iss.schema = iss.inst;
   }
   const schemaError = iss.schema !== iss.inst ? iss.schema?._zod.def?.error : void 0;
-  const message = iss.message ? iss.message : unwrapMessage(iss.inst?._zod.def?.error?.(iss)) ?? unwrapMessage(schemaError?.(iss)) ?? unwrapMessage(ctx?.error?.(iss)) ?? unwrapMessage(config2.customError?.(iss)) ?? unwrapMessage(config2.localeError?.(iss)) ?? "Invalid input";
+  const message = iss.message ? iss.message : unwrapMessage(iss.inst?._zod.def?.error?.(iss)) ?? unwrapMessage(schemaError?.(iss)) ?? unwrapMessage(ctx?.error?.(iss)) ?? unwrapMessage(config3.customError?.(iss)) ?? unwrapMessage(config3.localeError?.(iss)) ?? "Invalid input";
   const full = {};
   for (const k of Object.keys(iss)) {
     if (k === "inst" || k === "schema" || k === "continue" || k === "input" || k === "__proto__")
@@ -695,13 +695,13 @@ function getSizableOrigin(input) {
   return "unknown";
 }
 var highSurrogate = /[\uD800-\uDBFF]/;
-function codePointLength(str) {
-  const units = str.length;
-  if (!highSurrogate.test(str))
+function codePointLength(str2) {
+  const units = str2.length;
+  if (!highSurrogate.test(str2))
     return units;
   let count = units;
   for (let i = 0; i < units - 1; i++) {
-    if ((str.charCodeAt(i) & 64512) === 55296 && (str.charCodeAt(i + 1) & 64512) === 56320) {
+    if ((str2.charCodeAt(i) & 64512) === 55296 && (str2.charCodeAt(i + 1) & 64512) === 56320) {
       count--;
       i++;
     }
@@ -3447,7 +3447,7 @@ var recursive = /* @__PURE__ */ new WeakMap();
 var NONE = 0;
 var ASSUMED = 1;
 var PROVEN = 2;
-function isRecursive(inst, stack, resolve) {
+function isRecursive(inst, stack, resolve2) {
   const cached2 = recursive.get(inst);
   if (cached2 !== void 0)
     return cached2 ? PROVEN : NONE;
@@ -3457,7 +3457,7 @@ function isRecursive(inst, stack, resolve) {
   let result = NONE;
   const check = (child) => {
     if (result !== PROVEN && child?._zod) {
-      const answer = isRecursive(child, stack, resolve);
+      const answer = isRecursive(child, stack, resolve2);
       if (answer > result)
         result = answer;
     }
@@ -3468,7 +3468,7 @@ function isRecursive(inst, stack, resolve) {
       const desc = Object.getOwnPropertyDescriptor(sh, key);
       if (spread && !desc.enumerable)
         continue;
-      const child = desc.get ? ASSUMED : desc.value?._zod ? isRecursive(desc.value, stack, resolve) : NONE;
+      const child = desc.get ? ASSUMED : desc.value?._zod ? isRecursive(desc.value, stack, resolve2) : NONE;
       if (child > answer)
         answer = child;
     }
@@ -3532,7 +3532,7 @@ function isRecursive(inst, stack, resolve) {
       break;
     // `$ZodLazy` caches its inner on the def, so a resolved edge is followed exactly
     case "lazy": {
-      const inner = def._cachedInner ?? (resolve ? inst._zod.innerType : void 0);
+      const inner = def._cachedInner ?? (resolve2 ? inst._zod.innerType : void 0);
       merge2(inner ? isRecursive(inner, stack, false) : ASSUMED);
       break;
     }
@@ -11233,14 +11233,14 @@ function inputRequiredRoundsExceededMessage(method, maxRounds) {
   return `Multi-round-trip request '${method}' still required input after ${maxRounds} rounds (inputRequired.maxRounds)`;
 }
 function sleep(ms, signal) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve2, reject) => {
     if (signal?.aborted) {
       reject(signal.reason instanceof SdkError ? signal.reason : new SdkError(SdkErrorCode.RequestTimeout, String(signal.reason)));
       return;
     }
     const timer = setTimeout(() => {
       signal?.removeEventListener("abort", onAbort);
-      resolve();
+      resolve2();
     }, ms);
     const onAbort = () => {
       clearTimeout(timer);
@@ -12039,7 +12039,7 @@ var Protocol = class {
     const flowStartedAt = Date.now();
     let onAbort;
     let cleanupMessageId;
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve2, reject) => {
       const earlyReject = (error2) => {
         reject(error2);
       };
@@ -12108,7 +12108,7 @@ var Protocol = class {
         }
         if (decoded.kind === "invalid") return reject(decoded.error);
         if (decoded.kind === "input_required") {
-          if (options?.allowInputRequired === true) return resolve(manualInputRequiredValue(decoded));
+          if (options?.allowInputRequired === true) return resolve2(manualInputRequiredValue(decoded));
           const flow = {
             codec,
             request,
@@ -12120,11 +12120,11 @@ var Protocol = class {
               params
             }, resultSchema, legOptions)
           };
-          return resolve(this._resolveNonCompleteResult(decoded, flow));
+          return resolve2(this._resolveNonCompleteResult(decoded, flow));
         }
         const result = decoded.result;
         validateStandardSchema(resultSchema, result).then((parseResult) => {
-          if (parseResult.success) resolve(parseResult.data);
+          if (parseResult.success) resolve2(parseResult.data);
           else reject(new SdkError(SdkErrorCode.InvalidResult, `Invalid result for ${request.method}: ${parseResult.error}`));
         }, reject);
       });
@@ -12530,7 +12530,7 @@ var require_code$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
   }
   exports._ = _;
   const plus = new _Code("+");
-  function str(strs, ...args) {
+  function str2(strs, ...args) {
     const expr = [safeStringify(strs[0])];
     let i = 0;
     while (i < args.length) {
@@ -12541,7 +12541,7 @@ var require_code$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
     optimize(expr);
     return new _Code(expr);
   }
-  exports.str = str;
+  exports.str = str2;
   function addCodeArg(code, arg) {
     if (arg instanceof _Code) code.push(...arg._items);
     else if (arg instanceof Name) code.push(arg);
@@ -12574,7 +12574,7 @@ var require_code$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
     if (typeof b == "string" && b[0] === '"' && !(a instanceof Name)) return `"${a}${b.slice(1)}`;
   }
   function strConcat(c1, c2) {
-    return c2.emptyStr() ? c1 : c1.emptyStr() ? c2 : str`${c1}${c2}`;
+    return c2.emptyStr() ? c1 : c1.emptyStr() ? c2 : str2`${c1}${c2}`;
   }
   exports.strConcat = strConcat;
   function interpolate(x) {
@@ -13453,21 +13453,21 @@ var require_util = /* @__PURE__ */ __commonJSMin(((exports) => {
     return (0, codegen_1._)`${topSchemaRef}${schemaPath}${(0, codegen_1.getProperty)(keyword)}`;
   }
   exports.schemaRefOrVal = schemaRefOrVal;
-  function unescapeFragment(str) {
-    return unescapeJsonPointer(decodeURIComponent(str));
+  function unescapeFragment(str2) {
+    return unescapeJsonPointer(decodeURIComponent(str2));
   }
   exports.unescapeFragment = unescapeFragment;
-  function escapeFragment(str) {
-    return encodeURIComponent(escapeJsonPointer(str));
+  function escapeFragment(str2) {
+    return encodeURIComponent(escapeJsonPointer(str2));
   }
   exports.escapeFragment = escapeFragment;
-  function escapeJsonPointer(str) {
-    if (typeof str == "number") return `${str}`;
-    return str.replace(/~/g, "~0").replace(/\//g, "~1");
+  function escapeJsonPointer(str2) {
+    if (typeof str2 == "number") return `${str2}`;
+    return str2.replace(/~/g, "~0").replace(/\//g, "~1");
   }
   exports.escapeJsonPointer = escapeJsonPointer;
-  function unescapeJsonPointer(str) {
-    return str.replace(/~1/g, "/").replace(/~0/g, "~");
+  function unescapeJsonPointer(str2) {
+    return str2.replace(/~1/g, "/").replace(/~0/g, "~");
   }
   exports.unescapeJsonPointer = unescapeJsonPointer;
   function eachItem(xs, f) {
@@ -14353,8 +14353,8 @@ var require_json_schema_traverse = /* @__PURE__ */ __commonJSMin(((exports, modu
       post(schema, jsonPtr, rootSchema, parentJsonPtr, parentKeyword, parentSchema, keyIndex);
     }
   }
-  function escapeJsonPtr(str) {
-    return str.replace(/~/g, "~0").replace(/\//g, "~1");
+  function escapeJsonPtr(str2) {
+    return str2.replace(/~/g, "~0").replace(/\//g, "~1");
   }
 }));
 var require_resolve = /* @__PURE__ */ __commonJSMin(((exports) => {
@@ -15040,7 +15040,7 @@ var require_compile = /* @__PURE__ */ __commonJSMin(((exports) => {
     ref = (0, resolve_1.resolveUrl)(this.opts.uriResolver, baseId, ref);
     const schOrFunc = root.refs[ref];
     if (schOrFunc) return schOrFunc;
-    let _sch = resolve.call(this, root, ref);
+    let _sch = resolve2.call(this, root, ref);
     if (_sch === void 0) {
       const schema = (_a3 = root.localRefs) === null || _a3 === void 0 ? void 0 : _a3[ref];
       const { schemaId } = this.opts;
@@ -15066,7 +15066,7 @@ var require_compile = /* @__PURE__ */ __commonJSMin(((exports) => {
   function sameSchemaEnv(s1, s2) {
     return s1.schema === s2.schema && s1.root === s2.root && s1.baseId === s2.baseId;
   }
-  function resolve(root, ref) {
+  function resolve2(root, ref) {
     let sch;
     while (typeof (sch = this.refs[ref]) == "string") ref = sch;
     return sch || this.schemas[ref] || resolveSchema.call(this, root, ref);
@@ -15246,9 +15246,9 @@ var require_utils = /* @__PURE__ */ __commonJSMin(((exports, module) => {
       isIPV6: false
     };
   }
-  function findToken(str, token) {
+  function findToken(str2, token) {
     let ind = 0;
-    for (let i = 0; i < str.length; i++) if (str[i] === token) ind++;
+    for (let i = 0; i < str2.length; i++) if (str2[i] === token) ind++;
     return ind;
   }
   function removeDotSegments(path) {
@@ -15516,7 +15516,7 @@ var require_fast_uri = /* @__PURE__ */ __commonJSMin(((exports, module) => {
     else if (typeof uri === "object") uri = parse2(serialize(uri, options), options);
     return uri;
   }
-  function resolve(baseURI, relativeURI, options) {
+  function resolve2(baseURI, relativeURI, options) {
     const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
     const resolved = resolveComponent(parse2(baseURI, schemelessOptions), parse2(relativeURI, schemelessOptions), schemelessOptions, true);
     schemelessOptions.skipEscape = true;
@@ -15690,7 +15690,7 @@ var require_fast_uri = /* @__PURE__ */ __commonJSMin(((exports, module) => {
   const fastUri = {
     SCHEMES,
     normalize,
-    resolve,
+    resolve: resolve2,
     resolveComponent,
     equal,
     serialize,
@@ -15763,7 +15763,7 @@ var require_core$3 = /* @__PURE__ */ __commonJSMin(((exports) => {
   const util_1 = require_util();
   const $dataRefSchema = require_data();
   const uri_1 = require_uri();
-  const defaultRegExp = (str, flags) => new RegExp(str, flags);
+  const defaultRegExp = (str2, flags) => new RegExp(str2, flags);
   defaultRegExp.code = "new RegExp";
   const META_IGNORE_OPTIONS = [
     "removeAdditional",
@@ -16469,16 +16469,16 @@ var require_multipleOf = /* @__PURE__ */ __commonJSMin(((exports) => {
 }));
 var require_ucs2length = /* @__PURE__ */ __commonJSMin(((exports) => {
   Object.defineProperty(exports, "__esModule", { value: true });
-  function ucs2length(str) {
-    const len = str.length;
+  function ucs2length(str2) {
+    const len = str2.length;
     let length = 0;
     let pos = 0;
     let value;
     while (pos < len) {
       length++;
-      value = str.charCodeAt(pos++);
+      value = str2.charCodeAt(pos++);
       if (value >= 55296 && value <= 56319 && pos < len) {
-        value = str.charCodeAt(pos);
+        value = str2.charCodeAt(pos);
         if ((value & 64512) === 56320) pos++;
       }
     }
@@ -19189,8 +19189,8 @@ var require_formats = /* @__PURE__ */ __commonJSMin(((exports) => {
     30,
     31
   ];
-  function date4(str) {
-    const matches = DATE.exec(str);
+  function date4(str2) {
+    const matches = DATE.exec(str2);
     if (!matches) return false;
     const year = +matches[1];
     const month = +matches[2];
@@ -19205,8 +19205,8 @@ var require_formats = /* @__PURE__ */ __commonJSMin(((exports) => {
   }
   const TIME = /^(\d\d):(\d\d):(\d\d(?:\.\d+)?)(z|([+-])(\d\d)(?::?(\d\d))?)?$/i;
   function getTime(strictTimeZone) {
-    return function time3(str) {
-      const matches = TIME.exec(str);
+    return function time3(str2) {
+      const matches = TIME.exec(str2);
       if (!matches) return false;
       const hr = +matches[1];
       const min = +matches[2];
@@ -19243,8 +19243,8 @@ var require_formats = /* @__PURE__ */ __commonJSMin(((exports) => {
   const DATE_TIME_SEPARATOR = /t|\s/i;
   function getDateTime(strictTimeZone) {
     const time3 = getTime(strictTimeZone);
-    return function date_time(str) {
-      const dateTime = str.split(DATE_TIME_SEPARATOR);
+    return function date_time(str2) {
+      const dateTime = str2.split(DATE_TIME_SEPARATOR);
       return dateTime.length === 2 && date4(dateTime[0]) && time3(dateTime[1]);
     };
   }
@@ -19265,13 +19265,13 @@ var require_formats = /* @__PURE__ */ __commonJSMin(((exports) => {
   }
   const NOT_URI_FRAGMENT = /\/|:/;
   const URI = /^(?:[a-z][a-z0-9+\-.]*:)(?:\/?\/(?:(?:[a-z0-9\-._~!$&'()*+,;=:]|%[0-9a-f]{2})*@)?(?:\[(?:(?:(?:(?:[0-9a-f]{1,4}:){6}|::(?:[0-9a-f]{1,4}:){5}|(?:[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){4}|(?:(?:[0-9a-f]{1,4}:){0,1}[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){3}|(?:(?:[0-9a-f]{1,4}:){0,2}[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){2}|(?:(?:[0-9a-f]{1,4}:){0,3}[0-9a-f]{1,4})?::[0-9a-f]{1,4}:|(?:(?:[0-9a-f]{1,4}:){0,4}[0-9a-f]{1,4})?::)(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?))|(?:(?:[0-9a-f]{1,4}:){0,5}[0-9a-f]{1,4})?::[0-9a-f]{1,4}|(?:(?:[0-9a-f]{1,4}:){0,6}[0-9a-f]{1,4})?::)|[Vv][0-9a-f]+\.[a-z0-9\-._~!$&'()*+,;=:]+)\]|(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)|(?:[a-z0-9\-._~!$&'()*+,;=]|%[0-9a-f]{2})*)(?::\d*)?(?:\/(?:[a-z0-9\-._~!$&'()*+,;=:@]|%[0-9a-f]{2})*)*|\/(?:(?:[a-z0-9\-._~!$&'()*+,;=:@]|%[0-9a-f]{2})+(?:\/(?:[a-z0-9\-._~!$&'()*+,;=:@]|%[0-9a-f]{2})*)*)?|(?:[a-z0-9\-._~!$&'()*+,;=:@]|%[0-9a-f]{2})+(?:\/(?:[a-z0-9\-._~!$&'()*+,;=:@]|%[0-9a-f]{2})*)*)(?:\?(?:[a-z0-9\-._~!$&'()*+,;=:@/?]|%[0-9a-f]{2})*)?(?:#(?:[a-z0-9\-._~!$&'()*+,;=:@/?]|%[0-9a-f]{2})*)?$/i;
-  function uri(str) {
-    return NOT_URI_FRAGMENT.test(str) && URI.test(str);
+  function uri(str2) {
+    return NOT_URI_FRAGMENT.test(str2) && URI.test(str2);
   }
   const BYTE = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/gm;
-  function byte(str) {
+  function byte(str2) {
     BYTE.lastIndex = 0;
-    return BYTE.test(str);
+    return BYTE.test(str2);
   }
   const MIN_INT32 = -(2 ** 31);
   const MAX_INT32 = 2 ** 31 - 1;
@@ -19285,10 +19285,10 @@ var require_formats = /* @__PURE__ */ __commonJSMin(((exports) => {
     return true;
   }
   const Z_ANCHOR = /[^\\]\\Z/;
-  function regex(str) {
-    if (Z_ANCHOR.test(str)) return false;
+  function regex(str2) {
+    if (Z_ANCHOR.test(str2)) return false;
     try {
-      new RegExp(str);
+      new RegExp(str2);
       return true;
     } catch (e) {
       return false;
@@ -20756,20 +20756,20 @@ var McpServer = class {
     });
     this._promptHandlersInitialized = true;
   }
-  registerResource(name, uriOrTemplate, config2, readCallback) {
-    const { cacheHint, scopeChallenge, ...resourceMetadata } = config2;
+  registerResource(name, uriOrTemplate, config3, readCallback) {
+    const { cacheHint, scopeChallenge, ...resourceMetadata } = config3;
     const metadata = resourceMetadata;
     if (cacheHint !== void 0) assertValidCacheHint(cacheHint, `resource ${name}`);
     if (typeof uriOrTemplate === "string") {
       if (this._registeredResources[uriOrTemplate]) throw new Error(`Resource ${uriOrTemplate} is already registered`);
-      const registeredResource = this._createRegisteredResource(name, config2.title, uriOrTemplate, metadata, scopeChallenge, readCallback);
+      const registeredResource = this._createRegisteredResource(name, config3.title, uriOrTemplate, metadata, scopeChallenge, readCallback);
       if (cacheHint !== void 0) registeredResource.cacheHint = cacheHint;
       this.setResourceRequestHandlers();
       this.sendResourceListChanged();
       return registeredResource;
     } else {
       if (this._registeredResourceTemplates[name]) throw new Error(`Resource template ${name} is already registered`);
-      const registeredResourceTemplate = this._createRegisteredResourceTemplate(name, config2.title, uriOrTemplate, metadata, scopeChallenge, readCallback);
+      const registeredResourceTemplate = this._createRegisteredResourceTemplate(name, config3.title, uriOrTemplate, metadata, scopeChallenge, readCallback);
       if (cacheHint !== void 0) registeredResourceTemplate.cacheHint = cacheHint;
       this.setResourceRequestHandlers();
       this.sendResourceListChanged();
@@ -20953,14 +20953,14 @@ var McpServer = class {
     this.sendToolListChanged();
     return registeredTool;
   }
-  registerTool(name, config2, cb) {
+  registerTool(name, config3, cb) {
     if (this._registeredTools[name]) throw new Error(`Tool ${name} is already registered`);
-    const { title, description, inputSchema, outputSchema, annotations, icons, scopeChallenge, _meta } = config2;
+    const { title, description, inputSchema, outputSchema, annotations, icons, scopeChallenge, _meta } = config3;
     return this._createRegisteredTool(name, title, description, normalizeRawShapeSchema(inputSchema), normalizeRawShapeSchema(outputSchema), annotations, icons, void 0, scopeChallenge, _meta, cb);
   }
-  registerPrompt(name, config2, cb) {
+  registerPrompt(name, config3, cb) {
     if (this._registeredPrompts[name]) throw new Error(`Prompt ${name} is already registered`);
-    const { title, description, argsSchema, icons, scopeChallenge, _meta } = config2;
+    const { title, description, argsSchema, icons, scopeChallenge, _meta } = config3;
     const registeredPrompt = this._createRegisteredPrompt(name, title, description, normalizeRawShapeSchema(argsSchema), cb, icons, scopeChallenge, _meta);
     this.setPromptRequestHandlers();
     this.sendPromptListChanged();
@@ -21152,7 +21152,7 @@ var StdioServerTransport = class {
   }
   send(message) {
     if (this._closed) return Promise.reject(/* @__PURE__ */ new Error("StdioServerTransport is closed"));
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve2, reject) => {
       const json = serializeMessage(message);
       let settled = false;
       const onError = (error2) => {
@@ -21167,14 +21167,14 @@ var StdioServerTransport = class {
         settled = true;
         this._stdout.off("error", onError);
         this._stdout.off("drain", onDrain);
-        resolve();
+        resolve2();
       };
       this._stdout.once("error", onError);
       if (this._stdout.write(json)) {
         if (settled) return;
         settled = true;
         this._stdout.off("error", onError);
-        resolve();
+        resolve2();
       } else if (!settled) this._stdout.once("drain", onDrain);
     });
   }
@@ -21228,14 +21228,14 @@ var StdioConnectionChannel = class {
   */
   async whenRequestsAnswered(timeoutMs) {
     if (this._closed || this._pendingRequests.size === 0) return true;
-    return await new Promise((resolve) => {
+    return await new Promise((resolve2) => {
       const waiter = () => {
         clearTimeout(timer);
-        resolve(true);
+        resolve2(true);
       };
       const timer = setTimeout(() => {
         this._drainWaiters = this._drainWaiters.filter((pending) => pending !== waiter);
-        resolve(false);
+        resolve2(false);
       }, timeoutMs);
       this._drainWaiters.push(waiter);
     });
@@ -21592,6 +21592,24 @@ function unsupportedNodeMessage(version2 = process.versions.node) {
   return `The SusaPlay MCP server needs Node.js ${MINIMUM_NODE_MAJOR} or later; this is Node.js ${version2}. Install the current LTS release from https://nodejs.org and restart your editor.`;
 }
 
+// src/config.ts
+var DEFAULT_API_BASE_URL = "https://api.susaplay.com";
+function readConfig(env = process.env) {
+  const apiKey = env.SUSAPLAY_API_KEY?.trim() || null;
+  const raw = env.SUSAPLAY_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL;
+  let url2;
+  try {
+    url2 = new URL(raw);
+  } catch {
+    throw new Error(`SUSAPLAY_API_BASE_URL is not a URL: ${raw}`);
+  }
+  const local = url2.hostname === "localhost" || url2.hostname === "127.0.0.1";
+  if (url2.protocol !== "https:" && !(local && url2.protocol === "http:")) {
+    throw new Error("SUSAPLAY_API_BASE_URL must use https:// (plain http:// only for localhost)");
+  }
+  return { apiKey, apiBaseUrl: url2.origin + url2.pathname.replace(/\/+$/, "") };
+}
+
 // ../../node_modules/@modelcontextprotocol/server/dist/index.mjs
 var DEFAULT_MAX_REQUEST_BODY_SIZE = 4 * 1024 * 1024;
 
@@ -21599,12 +21617,601 @@ var DEFAULT_MAX_REQUEST_BODY_SIZE = 4 * 1024 * 1024;
 var SERVER_NAME = "susaplay";
 var SERVER_VERSION = "0.0.0";
 
+// src/api/errors.ts
+var ApiError = class extends Error {
+  constructor(code, message, status, details = {}) {
+    super(message);
+    this.code = code;
+    this.status = status;
+    this.details = details;
+    this.name = "ApiError";
+  }
+  code;
+  status;
+  details;
+};
+var KEY_HELP = `Create a key in the SusaPlay Developer Portal under API Keys (the "AI assistant" preset is recommended) and set it as SUSAPLAY_API_KEY in this MCP server's configuration \u2014 in Claude Code, the SusaPlay plugin's settings; in Cursor, Settings \u2192 MCP.`;
+function guidanceFor(error2) {
+  const detail = error2.message ? ` SusaPlay said: "${error2.message}"` : "";
+  switch (error2.code) {
+    case "NO_API_KEY":
+      return `No SusaPlay API key is set. ${KEY_HELP}`;
+    case "UNAUTHENTICATED":
+      return `SusaPlay did not accept the API key: it is wrong, revoked, or from before October 2026. ${KEY_HELP}`;
+    case "INSUFFICIENT_SCOPE":
+      return `This API key does not have the ${error2.details.requiredScope ?? "required"} permission. Create a key that has it in the Developer Portal under API Keys, and replace SUSAPLAY_API_KEY.`;
+    case "UNAUTHORIZED":
+      return `Not allowed: the game belongs to another developer, or the developer account is suspended.${detail}`;
+    case "NOT_FOUND":
+      return `Not found.${detail} Use list_games to see the games this key can reach.`;
+    case "INVALID_ARGUMENT":
+      return `The request was refused.${detail}`;
+    case "DUPLICATE":
+      return `That version already exists.${detail} Use a new version number.`;
+    case "FAILED_PRECONDITION":
+      return `SusaPlay cannot do this right now.${detail}`;
+    case "RATE_LIMITED":
+      return `Too many requests with this API key. Wait ${error2.details.retryAfterSeconds ?? 60} seconds before trying again, and avoid calling tools in a loop.`;
+    case "ANALYTICS_UNAVAILABLE":
+      return "Analytics is temporarily unavailable. Try again in a few minutes.";
+    case "NETWORK":
+      return `Could not reach SusaPlay.${detail} Check the internet connection and try again.`;
+    case "TIMEOUT":
+      return "SusaPlay did not answer in time. Try again in a moment.";
+    default:
+      return `SusaPlay returned an error (${error2.code}).${detail} Try again later; if it persists, report it to SusaPlay.`;
+  }
+}
+
+// src/api/client.ts
+var TIMEOUT_MS = 3e4;
+var MAX_RETRIES = 2;
+var MAX_RETRY_AFTER_SECONDS = 30;
+var RETRYABLE_STATUSES = /* @__PURE__ */ new Set([502, 503, 504]);
+var ApiClient = class {
+  constructor(config3, options = {}) {
+    this.config = config3;
+    this.options = options;
+    this.fetchImpl = options.fetch ?? ((input, init) => fetch(input, init));
+    this.sleep = options.sleep ?? ((ms) => new Promise((resolve2) => setTimeout(resolve2, ms)));
+  }
+  config;
+  options;
+  fetchImpl;
+  sleep;
+  get hasKey() {
+    return this.config.apiKey !== null;
+  }
+  get(path, query = {}) {
+    const params = new URLSearchParams();
+    for (const [name, value] of Object.entries(query)) {
+      if (value !== void 0) params.set(name, String(value));
+    }
+    const suffix = params.size ? `?${params}` : "";
+    return this.request("GET", `${path}${suffix}`);
+  }
+  post(path, body) {
+    return this.request("POST", path, body);
+  }
+  userAgent() {
+    const client = this.options.clientName?.();
+    return `susaplay-mcp/${SERVER_VERSION}${client ? ` (${client.replace(/[^\w .-]/g, "").slice(0, 40)})` : ""}`;
+  }
+  async request(method, path, body) {
+    if (!this.config.apiKey) {
+      throw new ApiError("NO_API_KEY", "", 0);
+    }
+    const url2 = `${this.config.apiBaseUrl}${path}`;
+    for (let attempt = 0; ; attempt += 1) {
+      let response;
+      try {
+        response = await this.fetchImpl(url2, {
+          method,
+          headers: {
+            Authorization: `ApiKey ${this.config.apiKey}`,
+            "User-Agent": this.userAgent(),
+            Accept: "application/json",
+            ...body === void 0 ? {} : { "Content-Type": "application/json" }
+          },
+          body: body === void 0 ? void 0 : JSON.stringify(body),
+          signal: AbortSignal.timeout(TIMEOUT_MS)
+        });
+      } catch (error2) {
+        const timedOut = error2 instanceof Error && (error2.name === "TimeoutError" || error2.name === "AbortError");
+        if (method === "GET" && attempt < MAX_RETRIES) {
+          await this.sleep(1e3 * 2 ** attempt);
+          continue;
+        }
+        throw new ApiError(timedOut ? "TIMEOUT" : "NETWORK", "", 0);
+      }
+      if (response.status === 429) {
+        const retryAfter = parseRetryAfter(response.headers.get("Retry-After"));
+        if (attempt < MAX_RETRIES && retryAfter <= MAX_RETRY_AFTER_SECONDS) {
+          await this.sleep(retryAfter * 1e3);
+          continue;
+        }
+        throw new ApiError("RATE_LIMITED", "", 429, { retryAfterSeconds: retryAfter });
+      }
+      if (method === "GET" && RETRYABLE_STATUSES.has(response.status) && attempt < MAX_RETRIES) {
+        await this.sleep(1e3 * 2 ** attempt);
+        continue;
+      }
+      return parseEnvelope(response);
+    }
+  }
+};
+function parseRetryAfter(value) {
+  const seconds = Number.parseInt(value ?? "", 10);
+  return Number.isFinite(seconds) && seconds > 0 ? seconds : 60;
+}
+async function parseEnvelope(response) {
+  let json = null;
+  try {
+    json = await response.json();
+  } catch {
+    json = null;
+  }
+  const envelope = json ?? {};
+  if (response.ok && envelope.success && envelope.data !== void 0) {
+    return envelope.data;
+  }
+  const error2 = typeof envelope.error === "object" && envelope.error ? envelope.error : {};
+  const code = error2.code || (response.status === 404 ? "NOT_FOUND" : response.ok ? "INTERNAL" : `HTTP_${response.status}`);
+  const message = typeof envelope.error === "string" ? envelope.error : error2.message ?? "";
+  throw new ApiError(code, message.slice(0, 300), response.status, { requiredScope: error2.requiredScope });
+}
+
+// src/tools/result.ts
+var ToolInputError = class extends Error {
+};
+function ok(summary, data) {
+  return { content: [{ type: "text", text: summary }], structuredContent: data };
+}
+function fail(error2) {
+  let text;
+  if (error2 instanceof ApiError) {
+    text = guidanceFor(error2);
+  } else if (error2 instanceof ToolInputError) {
+    text = error2.message;
+  } else {
+    log(`unexpected error: ${error2 instanceof Error ? error2.stack ?? error2.message : String(error2)}`);
+    text = "The SusaPlay tool failed unexpectedly. Try again; if it persists, report it to SusaPlay.";
+  }
+  return { isError: true, content: [{ type: "text", text }] };
+}
+
+// src/text.ts
+var CONTROL = /[\u0000-\u0008\u000b-\u001f\u007f-\u009f​-‏‪-‮⁦-⁩]/g;
+function cleanText(value, maxLength = 200) {
+  if (typeof value !== "string") return null;
+  const text = value.replace(CONTROL, "").replace(/\s+/g, " ").trim();
+  if (!text) return null;
+  return text.length > maxLength ? `${text.slice(0, maxLength - 1)}\u2026` : text;
+}
+
+// src/tools/shared.ts
+var gameIdSchema = string2().regex(/^[A-Za-z0-9_-]{1,128}$/, "A game ID is letters, digits, '-' and '_' \u2014 use list_games to find it").describe("The game's ID, from list_games");
+var addressablesSummarySchema = object({
+  enabled: boolean2(),
+  status: string2().nullable(),
+  liveCatalogVersion: string2().nullable(),
+  liveFileCount: number2().nullable(),
+  livePublishedAt: string2().nullable()
+});
+var gameSummarySchema = object({
+  name: string2(),
+  gameId: string2(),
+  status: string2().nullable(),
+  releaseState: string2().nullable(),
+  gameKey: string2().nullable(),
+  liveVersionId: string2().nullable(),
+  latestVersion: object({ versionId: string2(), status: string2().nullable(), uploadedAt: string2().nullable() }).nullable(),
+  pendingReviewCount: number2(),
+  processingCount: number2(),
+  versionCount: number2(),
+  addressables: addressablesSummarySchema
+});
+var str = (value) => typeof value === "string" && value ? value : null;
+var num = (value) => typeof value === "number" && Number.isFinite(value) ? value : null;
+function summarizeGame(game) {
+  const latest = game.latestVersion;
+  return {
+    name: cleanText(game.name, 120) ?? game.gameId,
+    gameId: game.gameId,
+    status: str(game.status),
+    releaseState: str(game.releaseState),
+    gameKey: str(game.gameKey),
+    liveVersionId: str(game.liveWebglVersionId),
+    latestVersion: latest ? { versionId: latest.versionId, status: str(latest.status), uploadedAt: str(latest.uploadedAt) } : null,
+    pendingReviewCount: game.buildSummary?.pendingReviewCount ?? 0,
+    processingCount: game.buildSummary?.processingCount ?? 0,
+    versionCount: game.buildSummary?.versionCount ?? 0,
+    addressables: {
+      enabled: Boolean(game.addressables?.enabled),
+      status: str(game.addressables?.status),
+      liveCatalogVersion: str(game.addressables?.liveCatalogVersion),
+      liveFileCount: num(game.addressables?.liveFileCount),
+      livePublishedAt: str(game.addressables?.livePublishedAt)
+    }
+  };
+}
+function describeGame(game) {
+  const parts = [`${game.name} (${game.gameId})`];
+  parts.push(game.liveVersionId ? `live ${game.liveVersionId}` : "nothing live");
+  if (game.latestVersion && game.latestVersion.versionId !== game.liveVersionId) {
+    parts.push(`latest ${game.latestVersion.versionId} ${game.latestVersion.status ?? ""}`.trim());
+  }
+  if (game.pendingReviewCount) parts.push(`${game.pendingReviewCount} in review`);
+  if (game.processingCount) parts.push(`${game.processingCount} processing`);
+  parts.push(game.addressables.enabled ? `Addressables ${game.addressables.status ?? "enabled"}` : "no Addressables");
+  return parts.join(", ");
+}
+
+// src/tools/addressables.ts
+var sideSchema = object({ fileCount: number2(), totalBytes: number2() });
+var totals = (files = []) => ({
+  fileCount: files.length,
+  totalBytes: files.reduce((sum, file) => sum + (num(file.sizeBytes) ?? 0), 0)
+});
+function missingForPublish(readiness) {
+  const missing = [];
+  if (!readiness.hasCatalogBin) missing.push("the binary catalog (catalog_<version>.bin)");
+  if (!readiness.hasCatalogHash) missing.push("the catalog hash (catalog_<version>.hash)");
+  if (readiness.hasCatalogBin && readiness.hasCatalogHash && !readiness.catalogPairMatched) {
+    missing.push("a .bin and .hash with the same catalog version");
+  }
+  if (!readiness.bundleCount) missing.push("at least one .bundle file");
+  return missing;
+}
+function registerAddressablesTools(server, api) {
+  server.registerTool(
+    "get_addressables",
+    {
+      title: "Get a game's Addressables state",
+      description: "Remote content (Unity Addressables) for one game: whether it is enabled and its status, the Remote Load Path the Unity project must use, what is live (catalog version, files, size, when), and what is in staging with anything missing before it can be published.",
+      inputSchema: object({ gameId: gameIdSchema }),
+      outputSchema: object({
+        gameId: string2(),
+        enabled: boolean2(),
+        status: string2().nullable(),
+        remoteLoadPath: string2().nullable(),
+        live: sideSchema.extend({ catalogVersion: string2().nullable(), publishedAt: string2().nullable() }),
+        staging: sideSchema.extend({
+          catalogVersion: string2().nullable(),
+          bundleCount: number2(),
+          readyToPublish: boolean2(),
+          missing: array(string2())
+        })
+      }),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true }
+    },
+    async ({ gameId }) => {
+      try {
+        const data = await api.get(`/catalog/game/${encodeURIComponent(gameId)}/addressables`);
+        const readiness = data.stagingReadiness ?? {};
+        const result = {
+          gameId,
+          enabled: Boolean(data.enabled),
+          status: str(data.status),
+          remoteLoadPath: str(data.remoteLoadPath),
+          live: {
+            ...totals(data.live),
+            catalogVersion: str(data.liveCatalogVersion),
+            publishedAt: str(data.livePublishedAt)
+          },
+          staging: {
+            ...totals(data.staging),
+            catalogVersion: str(readiness.catalogVersion),
+            bundleCount: num(readiness.bundleCount) ?? 0,
+            readyToPublish: Boolean(readiness.readyToPublish),
+            missing: (data.staging ?? []).length ? missingForPublish(readiness) : []
+          }
+        };
+        if (!result.enabled) {
+          return ok(
+            `Addressables are not enabled for ${gameId}. Enable them in the Developer Portal on the game's Addressables tab.`,
+            result
+          );
+        }
+        const lines = [
+          `Addressables ${result.status ?? "enabled"}. Remote Load Path: ${result.remoteLoadPath ?? "unknown"}`,
+          result.live.fileCount ? `Live: catalog ${result.live.catalogVersion ?? "?"}, ${result.live.fileCount} files, published ${result.live.publishedAt ?? "at an unknown time"}.` : "Nothing live yet.",
+          result.staging.fileCount ? `Staging: ${result.staging.fileCount} files, ${result.staging.readyToPublish ? "ready to publish" : `not ready \u2014 missing ${result.staging.missing.join("; ")}`}.` : "Staging is empty."
+        ];
+        return ok(lines.join("\n"), result);
+      } catch (error2) {
+        return fail(error2);
+      }
+    }
+  );
+}
+
+// src/tools/analytics.ts
+var percent = (value) => value === null ? "n/a" : `${Math.round(value * 100)}%`;
+function registerAnalyticsTools(server, api) {
+  server.registerTool(
+    "get_analytics",
+    {
+      title: "Get a game's player activity",
+      description: "Daily active players (DAU), 30-day active players (MAU) and the latest D1/D7/D30 retention for one game over the last 1\u201390 days. Revenue is deliberately not included: money figures come from the Developer Portal's payment reports, not from analytics. Empty numbers are normal for a game built with a SusaPlay SDK older than 1.3.0.",
+      inputSchema: object({
+        gameId: gameIdSchema.optional().describe("The game's ID; may be left out when the developer has one game"),
+        days: number2().int().min(1).max(90).default(30).describe("How many days back, 1\u201390")
+      }),
+      outputSchema: object({
+        gameId: string2(),
+        days: number2(),
+        dates: array(string2()),
+        dau: array(number2()),
+        mau: array(number2()),
+        retention: object({ d1: number2().nullable(), d7: number2().nullable(), d30: number2().nullable() }).nullable(),
+        activeDays: number2(),
+        peakDau: number2()
+      }),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true }
+    },
+    async ({ gameId, days }) => {
+      try {
+        const data = await api.get("/analytics/dashboard", { gameId, days });
+        const dau = (data.dau ?? []).map((value) => num(value) ?? 0);
+        const retention = data.retention ? { d1: num(data.retention.d1), d7: num(data.retention.d7), d30: num(data.retention.d30) } : null;
+        const result = {
+          gameId: data.gameId,
+          days: data.days,
+          dates: data.dates ?? [],
+          dau,
+          mau: (data.mau ?? []).map((value) => num(value) ?? 0),
+          retention,
+          activeDays: dau.filter((value) => value > 0).length,
+          peakDau: dau.length ? Math.max(...dau) : 0
+        };
+        const summary = result.activeDays ? `${result.gameId}, last ${result.days} days: players on ${result.activeDays} days, peak DAU ${result.peakDau}` + (retention ? `; latest retention D1 ${percent(retention.d1)}, D7 ${percent(retention.d7)}, D30 ${percent(retention.d30)}.` : ".") : `${result.gameId}: no player activity recorded in the last ${result.days} days.`;
+        return ok(summary, result);
+      } catch (error2) {
+        return fail(error2);
+      }
+    }
+  );
+}
+
+// src/tools/games.ts
+var READ_ONLY = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true };
+var versionSchema = object({
+  versionId: string2(),
+  status: string2().nullable(),
+  uploadedAt: string2().nullable(),
+  buildSizeBytes: number2().nullable(),
+  notes: string2().nullable(),
+  reviewedAt: string2().nullable(),
+  liveAt: string2().nullable(),
+  rejectionReason: string2().nullable(),
+  failure: object({ code: string2().nullable(), message: string2().nullable() }).nullable()
+});
+var KEPT_STATUSES = /* @__PURE__ */ new Set(["live", "pending_review", "processing", "extracting"]);
+function retentionForecast(versions, policy, liveVersionId, now = Date.now()) {
+  const webgl = versions.filter((version2) => (version2.platform ?? "webgl") === "webgl").sort((a, b) => Date.parse(b.uploadedAt ?? "") - Date.parse(a.uploadedAt ?? "") || 0);
+  const deleted = webgl.filter((version2) => version2.status === "failed").map((version2) => version2.versionId);
+  const grace = [];
+  const graceMs = policy.minAgeHours * 3600 * 1e3;
+  for (const version2 of webgl.filter((entry) => entry.status !== "failed").slice(Math.max(0, policy.maxVersionsPerPlatform - 1))) {
+    if (KEPT_STATUSES.has(version2.status ?? "") || version2.versionId === liveVersionId) continue;
+    const uploadedAt = Date.parse(version2.uploadedAt ?? "");
+    if (Number.isFinite(uploadedAt) && now - uploadedAt < graceMs) {
+      grace.push({ versionId: version2.versionId, deletableFrom: new Date(uploadedAt + graceMs).toISOString() });
+      continue;
+    }
+    deleted.push(version2.versionId);
+  }
+  return { deletedByNextUpload: deleted, protectedByGracePeriod: grace };
+}
+function registerGameTools(server, api) {
+  server.registerTool(
+    "list_games",
+    {
+      title: "List SusaPlay games",
+      description: "Lists the developer's SusaPlay games: name, ID, what is live, the latest build and its status, builds in review or processing, Addressables state, and the game key (matched against a Unity project's PlatformConfig). Start here to find a game's ID.",
+      inputSchema: object({}),
+      outputSchema: object({ games: array(gameSummarySchema) }),
+      annotations: READ_ONLY
+    },
+    async () => {
+      try {
+        const data = await api.get("/catalog/games");
+        const games = (data.games ?? []).map(summarizeGame);
+        const summary = games.length ? `${games.length} game${games.length === 1 ? "" : "s"}:
+${games.map((game) => `- ${describeGame(game)}`).join("\n")}` : "This developer has no games yet. Register one in the SusaPlay Developer Portal.";
+        return ok(summary, { games });
+      } catch (error2) {
+        return fail(error2);
+      }
+    }
+  );
+  server.registerTool(
+    "get_game",
+    {
+      title: "Get a SusaPlay game with its builds",
+      description: "One game with every build: status (processing, extracting, failed, pending_review, live, deprecated, rejected), upload time, size, notes, review time and any failure reason, plus the retention policy and which builds the next upload will delete.",
+      inputSchema: object({ gameId: gameIdSchema }),
+      outputSchema: object({
+        game: gameSummarySchema,
+        versions: array(versionSchema),
+        retention: object({
+          maxVersionsPerPlatform: number2(),
+          minAgeHours: number2(),
+          maxPendingPerGame: number2(),
+          deletedByNextUpload: array(string2()),
+          protectedByGracePeriod: array(object({ versionId: string2(), deletableFrom: string2() }))
+        })
+      }),
+      annotations: READ_ONLY
+    },
+    async ({ gameId }) => {
+      try {
+        const id = encodeURIComponent(gameId);
+        const [gameData, versionData] = await Promise.all([
+          api.get(`/catalog/game/${id}`),
+          api.get(`/catalog/game/${id}/versions`)
+        ]);
+        const game = summarizeGame(gameData.game);
+        const apiVersions = (versionData.versions ?? []).filter((version2) => (version2.platform ?? "webgl") === "webgl");
+        const versions = apiVersions.map((version2) => ({
+          versionId: version2.versionId,
+          status: str(version2.status),
+          uploadedAt: str(version2.uploadedAt),
+          buildSizeBytes: num(version2.buildSize),
+          notes: cleanText(version2.notes, 300),
+          reviewedAt: str(version2.reviewedAt),
+          liveAt: str(version2.liveAt),
+          rejectionReason: cleanText(version2.rejectionReason, 300),
+          failure: version2.failure ? { code: str(version2.failure.code), message: cleanText(version2.failure.message, 300) } : null
+        }));
+        const policy = gameData.retention;
+        const forecast = retentionForecast(apiVersions, policy, game.liveVersionId);
+        const lines = [describeGame(game)];
+        for (const version2 of versions) {
+          const reason = version2.failure?.message ?? version2.rejectionReason;
+          lines.push(`- ${version2.versionId}: ${version2.status ?? "unknown"}${reason ? ` \u2014 ${reason}` : ""}`);
+        }
+        lines.push(
+          `Retention keeps ${policy.maxVersionsPerPlatform} builds, at most ${policy.maxPendingPerGame} in review. ` + (forecast.deletedByNextUpload.length ? `The next upload deletes: ${forecast.deletedByNextUpload.join(", ")}.` : "The next upload deletes nothing.")
+        );
+        return ok(lines.join("\n"), {
+          game,
+          versions,
+          retention: { ...policy, ...forecast }
+        });
+      } catch (error2) {
+        return fail(error2);
+      }
+    }
+  );
+}
+
+// src/tools/simulator.ts
+import { mkdir, writeFile } from "node:fs/promises";
+import { dirname, join as join2 } from "node:path";
+
+// src/unity/project.ts
+import { readFile, stat } from "node:fs/promises";
+import { isAbsolute, join, resolve } from "node:path";
+var PLATFORM_CONFIG_PATH = "Assets/Resources/PlatformConfig.asset";
+var SIMULATOR_CONFIG_PATH = "ProjectSettings/Packages/com.susaplay.sdk/SimulatorConfig.json";
+async function isDirectory(path) {
+  try {
+    return (await stat(path)).isDirectory();
+  } catch {
+    return false;
+  }
+}
+async function resolveProjectRoot(projectPath, cwd = process.cwd()) {
+  const root = projectPath ? isAbsolute(projectPath) ? projectPath : resolve(cwd, projectPath) : cwd;
+  if (!await isDirectory(join(root, "Assets")) || !await isDirectory(join(root, "ProjectSettings"))) {
+    throw new ToolInputError(
+      `${root} is not a Unity project: it has no Assets and ProjectSettings folders. Pass projectPath with the folder that contains them.`
+    );
+  }
+  return root;
+}
+async function readProjectGameKey(root) {
+  let text;
+  try {
+    text = await readFile(join(root, PLATFORM_CONFIG_PATH), "utf8");
+  } catch {
+    return { kind: "missing" };
+  }
+  if (!text.startsWith("%YAML")) {
+    return { kind: "binary" };
+  }
+  const match = /^\s*_gameKey:\s*(.*)$/m.exec(text);
+  const value = (match?.[1] ?? "").trim().replace(/^(['"])(.*)\1$/, "$2").trim();
+  return value ? { kind: "found", gameKey: value } : { kind: "empty" };
+}
+
+// src/tools/simulator.ts
+function registerSimulatorTools(server, api, cwd = () => process.cwd()) {
+  server.registerTool(
+    "sync_simulator_config",
+    {
+      title: "Sync the Editor Simulator configuration",
+      description: "Downloads the game's configuration for the SusaPlay Editor Simulator \u2014 achievements, economy items, ad settings and the store \u2014 and writes it to ProjectSettings/Packages/com.susaplay.sdk/SimulatorConfig.json in the Unity project, replacing the file. Nothing on the platform changes. The game is the one whose game key the project's PlatformConfig holds, unless gameId is given.",
+      inputSchema: object({
+        projectPath: string2().optional().describe("The Unity project folder; defaults to the open workspace"),
+        gameId: gameIdSchema.optional()
+      }),
+      outputSchema: object({
+        gameId: string2(),
+        gameName: string2().nullable(),
+        file: string2(),
+        achievements: number2(),
+        items: number2()
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true }
+    },
+    async ({ projectPath, gameId }) => {
+      try {
+        const root = await resolveProjectRoot(projectPath, cwd());
+        const key = await readProjectGameKey(root);
+        const projectKey = key.kind === "found" ? key.gameKey : null;
+        let targetId = gameId;
+        if (!targetId) {
+          if (!projectKey) {
+            throw new ToolInputError(
+              key.kind === "binary" ? `${PLATFORM_CONFIG_PATH} uses binary serialization and cannot be read. Pass gameId.` : `The project has no game key in ${PLATFORM_CONFIG_PATH}. Set it with SusaPlay \u2192 Setup in Unity, or pass gameId.`
+            );
+          }
+          const { games } = await api.get("/catalog/games");
+          const match = games.find((game) => game.gameKey === projectKey);
+          if (!match) {
+            throw new ToolInputError(
+              "The game key in this project's PlatformConfig belongs to none of your games. Check the key in SusaPlay \u2192 Setup against the Developer Portal, or use an API key of the developer who owns the game."
+            );
+          }
+          targetId = match.gameId;
+        }
+        const config3 = await api.get(`/catalog/game/${encodeURIComponent(targetId)}/simulator-config`);
+        if (projectKey && config3.game?.gameKey && config3.game.gameKey !== projectKey) {
+          throw new ToolInputError(
+            `Game ${targetId} is not the game this project is set up for: its game key differs from the one in ${PLATFORM_CONFIG_PATH}. Nothing was written.`
+          );
+        }
+        const file = join2(root, SIMULATOR_CONFIG_PATH);
+        await mkdir(dirname(file), { recursive: true });
+        await writeFile(file, `${JSON.stringify(config3, null, 2)}
+`, "utf8");
+        const count = (value) => Array.isArray(value) ? value.length : value && typeof value === "object" ? Object.keys(value).length : 0;
+        const result = {
+          gameId: targetId,
+          gameName: config3.game?.name ?? null,
+          file: SIMULATOR_CONFIG_PATH,
+          achievements: count(config3.achievements),
+          items: count(config3.items)
+        };
+        return ok(
+          `Wrote ${SIMULATOR_CONFIG_PATH} for ${result.gameName ?? targetId} (${result.achievements} achievements, ${result.items} items). The Editor Simulator reads it on the next Play. Commit the file so everyone on the project tests against the same configuration.`,
+          result
+        );
+      } catch (error2) {
+        return fail(error2);
+      }
+    }
+  );
+}
+
 // src/server.ts
-function createServer() {
-  return new McpServer(
+function createServer(dependencies = {}) {
+  const server = new McpServer(
     { name: SERVER_NAME, version: SERVER_VERSION },
     { capabilities: { tools: {} } }
   );
+  const api = new ApiClient(dependencies.config ?? readConfig(), {
+    fetch: dependencies.fetch,
+    clientName: () => server.server.getClientVersion()?.name
+  });
+  registerGameTools(server, api);
+  registerAddressablesTools(server, api);
+  registerAnalyticsTools(server, api);
+  registerSimulatorTools(server, api, dependencies.cwd);
+  return server;
 }
 
 // src/index.ts
@@ -21613,8 +22220,15 @@ if (unsupported) {
   log(unsupported);
   process.exit(1);
 }
-log(`starting ${SERVER_VERSION}`);
-serveStdio(createServer, {
+var config2;
+try {
+  config2 = readConfig();
+} catch (error2) {
+  log(error2.message);
+  process.exit(1);
+}
+log(`starting ${SERVER_VERSION}${config2.apiKey ? "" : " without an API key: only local tools will work"}`);
+serveStdio(() => createServer({ config: config2 }), {
   onerror: (error2) => log(`error: ${error2.message}`)
 });
 /*! Bundled license information:

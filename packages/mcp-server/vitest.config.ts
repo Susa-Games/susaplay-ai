@@ -8,5 +8,5 @@ const { version } = JSON.parse(readFileSync(new URL("./package.json", import.met
 
 export default defineConfig({
   define: { __SUSAPLAY_MCP_VERSION__: JSON.stringify(version) },
-  test: { include: ["test/**/*.test.ts"] },
+  test: { include: ["test/**/*.test.ts"], globalSetup: ["test/global-setup.ts"] },
 });
