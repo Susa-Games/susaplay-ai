@@ -4,7 +4,7 @@
 // The plugin's copy is committed, and CI rebuilds it and fails if it differs, so
 // the file developers run is always the one this source produces. Keep the
 // output deterministic: no timestamps, no absolute paths, no source maps.
-import { appendFile, copyFile, mkdir, readFile, readdir } from "node:fs/promises";
+import { appendFile, chmod, copyFile, mkdir, readFile, readdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -70,4 +70,8 @@ async function thirdPartyNotices(metafile) {
 
 await mkdir(dirname(pluginFile), { recursive: true });
 await copyFile(npmFile, pluginFile);
+// Executable everywhere: it is the package's `bin`, and git records the mode,
+// so a mode that depended on the machine would fail the CI bundle check.
+await chmod(npmFile, 0o755);
+await chmod(pluginFile, 0o755);
 console.log(`built @susaplay/mcp ${version}`);
