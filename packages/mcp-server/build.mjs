@@ -4,7 +4,7 @@
 // The plugin's copy is committed, and CI rebuilds it and fails if it differs, so
 // the file developers run is always the one this source produces. Keep the
 // output deterministic: no timestamps, no absolute paths, no source maps.
-import { appendFile, chmod, copyFile, mkdir, readFile, readdir } from "node:fs/promises";
+import { chmod, mkdir, readFile, readdir, rename, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -20,6 +20,8 @@ const result = await build({
   absWorkingDir: here,
   entryPoints: ["src/index.ts"],
   outfile: npmFile,
+  // Kept in memory and written once, whole, below.
+  write: false,
   bundle: true,
   platform: "node",
   format: "esm",
@@ -39,7 +41,8 @@ const result = await build({
   logLevel: "warning",
 });
 
-await appendFile(npmFile, await thirdPartyNotices(result.metafile));
+const [output] = result.outputFiles;
+const bundle = output.text + (await thirdPartyNotices(result.metafile));
 
 // Every package that ended up in the bundle, with its license text, appended to
 // the file. The bundle redistributes their code, and their licenses (MIT, ISC,
@@ -68,10 +71,15 @@ async function thirdPartyNotices(metafile) {
   return `${text} */\n`;
 }
 
-await mkdir(dirname(pluginFile), { recursive: true });
-await copyFile(npmFile, pluginFile);
-// Executable everywhere: it is the package's `bin`, and git records the mode,
-// so a mode that depended on the machine would fail the CI bundle check.
-await chmod(npmFile, 0o755);
-await chmod(pluginFile, 0o755);
+// Each file is written to a temporary name and renamed into place, so nothing —
+// a test, an editor, a second build — ever sees half a bundle. Executable
+// everywhere: it is the package's `bin`, and git records the mode, so a mode
+// that depended on the machine would fail the CI bundle check.
+for (const file of [npmFile, pluginFile]) {
+  await mkdir(dirname(file), { recursive: true });
+  const temporary = `${file}.${process.pid}.tmp`;
+  await writeFile(temporary, bundle);
+  await chmod(temporary, 0o755);
+  await rename(temporary, file);
+}
 console.log(`built @susaplay/mcp ${version}`);

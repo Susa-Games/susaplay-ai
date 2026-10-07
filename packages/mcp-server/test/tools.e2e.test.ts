@@ -1,12 +1,10 @@
 // The bundled server, run as a client runs it, against a fake SusaPlay API on
 // this machine and a throwaway Unity project.
-import { execFileSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { type IncomingMessage, type Server, createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 
@@ -78,7 +76,6 @@ function session(env: Record<string, string> = {}): McpSession {
 }
 
 beforeAll(async () => {
-  execFileSync(process.execPath, ["build.mjs"], { cwd: fileURLToPath(new URL("..", import.meta.url)), stdio: "ignore" });
   api = createServer((request, response) => {
     seen.push(request);
     const path = (request.url ?? "").split("?")[0] ?? "";

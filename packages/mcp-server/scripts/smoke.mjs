@@ -27,7 +27,9 @@ child.stderr.on("data", (chunk) => {
 });
 child.stdout.on("data", (chunk) => {
   stdout += chunk;
-  const lines = stdout.split("\n").filter((line) => line.trim());
+  // A long message arrives in several chunks: only lines ended by a newline are
+  // whole messages.
+  const lines = stdout.split("\n").slice(0, -1).filter((line) => line.trim());
   if (lines.length < 2) return;
   clearTimeout(timer);
   let initialize;
