@@ -1,22 +1,40 @@
 {
   "name": "@susaplay/mcp",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "MCP server for SusaPlay: check Unity projects, inspect and publish WebGL builds, and read games and analytics from an AI coding assistant",
   "license": "Apache-2.0",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "susaplay",
+    "unity",
+    "webgl",
+    "addressables"
+  ],
+  "homepage": "https://github.com/Susa-Games/susaplay-ai/tree/main/packages/mcp-server#readme",
+  "bugs": {
+    "url": "https://github.com/Susa-Games/susaplay-ai/issues"
+  },
   "type": "module",
   "bin": {
     "susaplay-mcp": "dist/susaplay-mcp.mjs"
   },
   "files": [
-    "dist/susaplay-mcp.mjs"
+    "dist/susaplay-mcp.mjs",
+    "NOTICE"
   ],
   "engines": {
     "node": ">=20"
   },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "node build.mjs",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepack": "node -e \"for (const f of ['LICENSE', 'NOTICE']) require('fs').copyFileSync('../../' + f, f)\""
   },
   "repository": {
     "type": "git",
