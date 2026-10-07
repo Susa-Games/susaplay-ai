@@ -118,13 +118,15 @@ describe("read tools against the API", () => {
     const { result } = await mcp.request("tools/list");
     const tools = Object.fromEntries(result.tools.map((tool: any) => [tool.name, tool]));
     expect(Object.keys(tools).sort()).toEqual([
+      "check_project",
       "get_addressables",
       "get_analytics",
       "get_game",
+      "inspect_build",
       "list_games",
       "sync_simulator_config",
     ]);
-    for (const name of ["list_games", "get_game", "get_addressables", "get_analytics"]) {
+    for (const name of ["list_games", "get_game", "get_addressables", "get_analytics", "check_project", "inspect_build"]) {
       expect(tools[name].annotations.readOnlyHint).toBe(true);
       expect(tools[name].outputSchema).toBeDefined();
     }

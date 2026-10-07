@@ -3447,7 +3447,7 @@ var recursive = /* @__PURE__ */ new WeakMap();
 var NONE = 0;
 var ASSUMED = 1;
 var PROVEN = 2;
-function isRecursive(inst, stack, resolve2) {
+function isRecursive(inst, stack, resolve3) {
   const cached2 = recursive.get(inst);
   if (cached2 !== void 0)
     return cached2 ? PROVEN : NONE;
@@ -3457,7 +3457,7 @@ function isRecursive(inst, stack, resolve2) {
   let result = NONE;
   const check = (child) => {
     if (result !== PROVEN && child?._zod) {
-      const answer = isRecursive(child, stack, resolve2);
+      const answer = isRecursive(child, stack, resolve3);
       if (answer > result)
         result = answer;
     }
@@ -3468,7 +3468,7 @@ function isRecursive(inst, stack, resolve2) {
       const desc = Object.getOwnPropertyDescriptor(sh, key);
       if (spread && !desc.enumerable)
         continue;
-      const child = desc.get ? ASSUMED : desc.value?._zod ? isRecursive(desc.value, stack, resolve2) : NONE;
+      const child = desc.get ? ASSUMED : desc.value?._zod ? isRecursive(desc.value, stack, resolve3) : NONE;
       if (child > answer)
         answer = child;
     }
@@ -3532,7 +3532,7 @@ function isRecursive(inst, stack, resolve2) {
       break;
     // `$ZodLazy` caches its inner on the def, so a resolved edge is followed exactly
     case "lazy": {
-      const inner = def._cachedInner ?? (resolve2 ? inst._zod.innerType : void 0);
+      const inner = def._cachedInner ?? (resolve3 ? inst._zod.innerType : void 0);
       merge2(inner ? isRecursive(inner, stack, false) : ASSUMED);
       break;
     }
@@ -11233,14 +11233,14 @@ function inputRequiredRoundsExceededMessage(method, maxRounds) {
   return `Multi-round-trip request '${method}' still required input after ${maxRounds} rounds (inputRequired.maxRounds)`;
 }
 function sleep(ms, signal) {
-  return new Promise((resolve2, reject) => {
+  return new Promise((resolve3, reject) => {
     if (signal?.aborted) {
       reject(signal.reason instanceof SdkError ? signal.reason : new SdkError(SdkErrorCode.RequestTimeout, String(signal.reason)));
       return;
     }
     const timer = setTimeout(() => {
       signal?.removeEventListener("abort", onAbort);
-      resolve2();
+      resolve3();
     }, ms);
     const onAbort = () => {
       clearTimeout(timer);
@@ -12039,7 +12039,7 @@ var Protocol = class {
     const flowStartedAt = Date.now();
     let onAbort;
     let cleanupMessageId;
-    return new Promise((resolve2, reject) => {
+    return new Promise((resolve3, reject) => {
       const earlyReject = (error2) => {
         reject(error2);
       };
@@ -12108,7 +12108,7 @@ var Protocol = class {
         }
         if (decoded.kind === "invalid") return reject(decoded.error);
         if (decoded.kind === "input_required") {
-          if (options?.allowInputRequired === true) return resolve2(manualInputRequiredValue(decoded));
+          if (options?.allowInputRequired === true) return resolve3(manualInputRequiredValue(decoded));
           const flow = {
             codec,
             request,
@@ -12120,11 +12120,11 @@ var Protocol = class {
               params
             }, resultSchema, legOptions)
           };
-          return resolve2(this._resolveNonCompleteResult(decoded, flow));
+          return resolve3(this._resolveNonCompleteResult(decoded, flow));
         }
         const result = decoded.result;
         validateStandardSchema(resultSchema, result).then((parseResult) => {
-          if (parseResult.success) resolve2(parseResult.data);
+          if (parseResult.success) resolve3(parseResult.data);
           else reject(new SdkError(SdkErrorCode.InvalidResult, `Invalid result for ${request.method}: ${parseResult.error}`));
         }, reject);
       });
@@ -15040,7 +15040,7 @@ var require_compile = /* @__PURE__ */ __commonJSMin(((exports) => {
     ref = (0, resolve_1.resolveUrl)(this.opts.uriResolver, baseId, ref);
     const schOrFunc = root.refs[ref];
     if (schOrFunc) return schOrFunc;
-    let _sch = resolve2.call(this, root, ref);
+    let _sch = resolve3.call(this, root, ref);
     if (_sch === void 0) {
       const schema = (_a3 = root.localRefs) === null || _a3 === void 0 ? void 0 : _a3[ref];
       const { schemaId } = this.opts;
@@ -15066,7 +15066,7 @@ var require_compile = /* @__PURE__ */ __commonJSMin(((exports) => {
   function sameSchemaEnv(s1, s2) {
     return s1.schema === s2.schema && s1.root === s2.root && s1.baseId === s2.baseId;
   }
-  function resolve2(root, ref) {
+  function resolve3(root, ref) {
     let sch;
     while (typeof (sch = this.refs[ref]) == "string") ref = sch;
     return sch || this.schemas[ref] || resolveSchema.call(this, root, ref);
@@ -15516,47 +15516,47 @@ var require_fast_uri = /* @__PURE__ */ __commonJSMin(((exports, module) => {
     else if (typeof uri === "object") uri = parse2(serialize(uri, options), options);
     return uri;
   }
-  function resolve2(baseURI, relativeURI, options) {
+  function resolve3(baseURI, relativeURI, options) {
     const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
     const resolved = resolveComponent(parse2(baseURI, schemelessOptions), parse2(relativeURI, schemelessOptions), schemelessOptions, true);
     schemelessOptions.skipEscape = true;
     return serialize(resolved, schemelessOptions);
   }
-  function resolveComponent(base, relative, options, skipNormalization) {
+  function resolveComponent(base, relative2, options, skipNormalization) {
     const target = {};
     if (!skipNormalization) {
       base = parse2(serialize(base, options), options);
-      relative = parse2(serialize(relative, options), options);
+      relative2 = parse2(serialize(relative2, options), options);
     }
     options = options || {};
-    if (!options.tolerant && relative.scheme) {
-      target.scheme = relative.scheme;
-      target.userinfo = relative.userinfo;
-      target.host = relative.host;
-      target.port = relative.port;
-      target.path = removeDotSegments(relative.path || "");
-      target.query = relative.query;
+    if (!options.tolerant && relative2.scheme) {
+      target.scheme = relative2.scheme;
+      target.userinfo = relative2.userinfo;
+      target.host = relative2.host;
+      target.port = relative2.port;
+      target.path = removeDotSegments(relative2.path || "");
+      target.query = relative2.query;
     } else {
-      if (relative.userinfo !== void 0 || relative.host !== void 0 || relative.port !== void 0) {
-        target.userinfo = relative.userinfo;
-        target.host = relative.host;
-        target.port = relative.port;
-        target.path = removeDotSegments(relative.path || "");
-        target.query = relative.query;
+      if (relative2.userinfo !== void 0 || relative2.host !== void 0 || relative2.port !== void 0) {
+        target.userinfo = relative2.userinfo;
+        target.host = relative2.host;
+        target.port = relative2.port;
+        target.path = removeDotSegments(relative2.path || "");
+        target.query = relative2.query;
       } else {
-        if (!relative.path) {
+        if (!relative2.path) {
           target.path = base.path;
-          if (relative.query !== void 0) target.query = relative.query;
+          if (relative2.query !== void 0) target.query = relative2.query;
           else target.query = base.query;
         } else {
-          if (relative.path[0] === "/") target.path = removeDotSegments(relative.path);
+          if (relative2.path[0] === "/") target.path = removeDotSegments(relative2.path);
           else {
-            if ((base.userinfo !== void 0 || base.host !== void 0 || base.port !== void 0) && !base.path) target.path = "/" + relative.path;
-            else if (!base.path) target.path = relative.path;
-            else target.path = base.path.slice(0, base.path.lastIndexOf("/") + 1) + relative.path;
+            if ((base.userinfo !== void 0 || base.host !== void 0 || base.port !== void 0) && !base.path) target.path = "/" + relative2.path;
+            else if (!base.path) target.path = relative2.path;
+            else target.path = base.path.slice(0, base.path.lastIndexOf("/") + 1) + relative2.path;
             target.path = removeDotSegments(target.path);
           }
-          target.query = relative.query;
+          target.query = relative2.query;
         }
         target.userinfo = base.userinfo;
         target.host = base.host;
@@ -15564,7 +15564,7 @@ var require_fast_uri = /* @__PURE__ */ __commonJSMin(((exports, module) => {
       }
       target.scheme = base.scheme;
     }
-    target.fragment = relative.fragment;
+    target.fragment = relative2.fragment;
     return target;
   }
   function equal(uriA, uriB, options) {
@@ -15690,7 +15690,7 @@ var require_fast_uri = /* @__PURE__ */ __commonJSMin(((exports, module) => {
   const fastUri = {
     SCHEMES,
     normalize,
-    resolve: resolve2,
+    resolve: resolve3,
     resolveComponent,
     equal,
     serialize,
@@ -21152,7 +21152,7 @@ var StdioServerTransport = class {
   }
   send(message) {
     if (this._closed) return Promise.reject(/* @__PURE__ */ new Error("StdioServerTransport is closed"));
-    return new Promise((resolve2, reject) => {
+    return new Promise((resolve3, reject) => {
       const json = serializeMessage(message);
       let settled = false;
       const onError = (error2) => {
@@ -21167,14 +21167,14 @@ var StdioServerTransport = class {
         settled = true;
         this._stdout.off("error", onError);
         this._stdout.off("drain", onDrain);
-        resolve2();
+        resolve3();
       };
       this._stdout.once("error", onError);
       if (this._stdout.write(json)) {
         if (settled) return;
         settled = true;
         this._stdout.off("error", onError);
-        resolve2();
+        resolve3();
       } else if (!settled) this._stdout.once("drain", onDrain);
     });
   }
@@ -21228,14 +21228,14 @@ var StdioConnectionChannel = class {
   */
   async whenRequestsAnswered(timeoutMs) {
     if (this._closed || this._pendingRequests.size === 0) return true;
-    return await new Promise((resolve2) => {
+    return await new Promise((resolve3) => {
       const waiter = () => {
         clearTimeout(timer);
-        resolve2(true);
+        resolve3(true);
       };
       const timer = setTimeout(() => {
         this._drainWaiters = this._drainWaiters.filter((pending) => pending !== waiter);
-        resolve2(false);
+        resolve3(false);
       }, timeoutMs);
       this._drainWaiters.push(waiter);
     });
@@ -21673,7 +21673,7 @@ var ApiClient = class {
     this.config = config3;
     this.options = options;
     this.fetchImpl = options.fetch ?? ((input, init) => fetch(input, init));
-    this.sleep = options.sleep ?? ((ms) => new Promise((resolve2) => setTimeout(resolve2, ms)));
+    this.sleep = options.sleep ?? ((ms) => new Promise((resolve3) => setTimeout(resolve3, ms)));
   }
   config;
   options;
@@ -21974,6 +21974,521 @@ function registerAnalyticsTools(server, api) {
   );
 }
 
+// src/tools/check-project.ts
+import { readFile as readFile5 } from "node:fs/promises";
+import { join as join5 } from "node:path";
+
+// src/unity/addressables.ts
+import { readFile, readdir } from "node:fs/promises";
+import { join } from "node:path";
+
+// src/unity/catalog.ts
+var UNICODE_FLAG = 2147483648;
+var DYNAMIC_FLAG = 1073741824;
+var CLEAR_FLAGS = 1073741823;
+var NONE2 = 4294967295;
+var CATALOG_DATA_VERSION = 2;
+var BUNDLE_PROVIDER_SUFFIX = "AssetBundleProvider";
+var RUNTIME_PATH = "{UnityEngine.AddressableAssets.Addressables.RuntimePath}";
+var CatalogFormatError = class extends Error {
+};
+var Reader = class {
+  constructor(bytes) {
+    this.bytes = bytes;
+    this.view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  }
+  bytes;
+  view;
+  u32(offset) {
+    if (offset < 0 || offset + 4 > this.bytes.length) {
+      throw new CatalogFormatError(`offset ${offset} is outside the catalog`);
+    }
+    return this.view.getUint32(offset, true);
+  }
+  /** Byte length of the array or string stored at `offset`. */
+  size(offset) {
+    const size = this.u32(offset - 4);
+    if (offset + size > this.bytes.length) {
+      throw new CatalogFormatError(`data at ${offset} runs past the end of the catalog`);
+    }
+    return size;
+  }
+  uintArray(offset) {
+    if (offset === NONE2) return [];
+    const count = this.size(offset) / 4;
+    return Array.from({ length: count }, (_, index) => this.u32(offset + index * 4));
+  }
+  plainString(id) {
+    if ((id & UNICODE_FLAG) >>> 0 === UNICODE_FLAG) {
+      const offset = id & CLEAR_FLAGS;
+      return new TextDecoder("utf-16le").decode(this.bytes.subarray(offset, offset + this.size(offset)));
+    }
+    return new TextDecoder("latin1").decode(this.bytes.subarray(id, id + this.size(id)));
+  }
+  string(id, separator) {
+    if (id === NONE2) return null;
+    if ((id & DYNAMIC_FLAG) === 0) return this.plainString(id);
+    const parts = [];
+    let next = id;
+    for (let guard = 0; next !== NONE2; guard += 1) {
+      if (guard > 4096) throw new CatalogFormatError("a string in the catalog does not end");
+      const offset = next & CLEAR_FLAGS;
+      parts.push(this.plainString(this.u32(offset)));
+      next = this.u32(offset + 4);
+    }
+    return parts.reverse().join(separator);
+  }
+};
+function readCatalogBundles(data) {
+  if (data.length < 32) throw new CatalogFormatError("too short to be an Addressables binary catalog");
+  const reader = new Reader(data);
+  const version2 = reader.u32(4);
+  if (version2 !== CATALOG_DATA_VERSION) {
+    throw new CatalogFormatError(`catalog data version ${version2}; this reader understands version ${CATALOG_DATA_VERSION}`);
+  }
+  const keysOffset = reader.u32(8);
+  const keyCount = reader.uintArray(keysOffset).length / 2;
+  const locations = /* @__PURE__ */ new Set();
+  for (let index = 0; index < keyCount; index += 1) {
+    const locationSet = reader.u32(keysOffset + index * 8 + 4);
+    for (const location of reader.uintArray(locationSet)) locations.add(location);
+  }
+  const bundles = /* @__PURE__ */ new Map();
+  for (const location of locations) {
+    const provider = reader.string(reader.u32(location + 8), ".");
+    if (!provider?.endsWith(BUNDLE_PROVIDER_SUFFIX)) continue;
+    const internalId = reader.string(reader.u32(location + 4), "/");
+    if (!internalId) continue;
+    bundles.set(internalId, {
+      internalId,
+      fileName: internalId.slice(internalId.lastIndexOf("/") + 1),
+      local: internalId.startsWith(RUNTIME_PATH)
+    });
+  }
+  return [...bundles.values()].sort((a, b) => a.internalId.localeCompare(b.internalId));
+}
+
+// src/unity/yaml.ts
+function scalar(text, name) {
+  const match = new RegExp(`^[ \\t]*${name}:[ \\t]*(.*)$`, "m").exec(text);
+  if (!match) return null;
+  return unquote((match[1] ?? "").trim());
+}
+function nestedId(text, parent) {
+  const match = new RegExp(`^[ \\t]*${parent}:[ \\t]*\\r?\\n[ \\t]*m_Id:[ \\t]*(\\S*)`, "m").exec(text);
+  return match ? unquote(match[1] ?? "") || null : null;
+}
+function unquote(value) {
+  if (value.length >= 2 && (value[0] === "'" || value[0] === '"') && value.at(-1) === value[0]) {
+    return value.slice(1, -1).replace(/''/g, "'");
+  }
+  return value;
+}
+function metaGuid(text) {
+  return scalar(text, "guid");
+}
+var isTextSerialized = (text) => text.startsWith("%YAML");
+
+// src/unity/addressables.ts
+var ADDRESSABLES_DATA = "Assets/AddressableAssetsData";
+var SETTINGS_FILE = `${ADDRESSABLES_DATA}/AddressableAssetSettings.asset`;
+var BUNDLE_NAMING_NO_HASH = 1;
+function activeProfileValues(settings) {
+  const activeId = scalar(settings, "m_ActiveProfileId");
+  const values = /* @__PURE__ */ new Map();
+  let name = null;
+  const profiles = settings.split(/\n {4}- m_InheritedParent:/).slice(1);
+  for (const profile of profiles) {
+    const id = /\n {6}m_Id: (\S+)/.exec(profile)?.[1];
+    if (id !== activeId) continue;
+    name = scalar(profile, "m_ProfileName");
+    for (const match of profile.matchAll(/- m_Id: (\S+)\s*\n\s*m_Value: (.*)/g)) {
+      values.set(match[1] ?? "", (match[2] ?? "").trim().replace(/^'(.*)'$/, "$1"));
+    }
+  }
+  return { name, values };
+}
+async function tryRead(path) {
+  try {
+    return await readFile(path, "utf8");
+  } catch {
+    return null;
+  }
+}
+async function readAddressablesSetup(root) {
+  const settings = await tryRead(join(root, SETTINGS_FILE));
+  if (settings === null) return null;
+  if (!isTextSerialized(settings)) {
+    return { textSerialized: false, buildRemoteCatalog: false, enableJsonCatalog: false, playerVersionOverride: "", activeProfile: null, groups: [] };
+  }
+  const profile = activeProfileValues(settings);
+  const defaultGroupGuid = scalar(settings, "m_DefaultGroup");
+  const groupsDir = join(root, ADDRESSABLES_DATA, "AssetGroups");
+  const groupByAssetGuid = /* @__PURE__ */ new Map();
+  let files = [];
+  try {
+    files = (await readdir(groupsDir)).filter((file) => file.endsWith(".asset")).sort();
+  } catch {
+    files = [];
+  }
+  for (const file of files) {
+    const text = await tryRead(join(groupsDir, file));
+    const meta2 = await tryRead(join(groupsDir, `${file}.meta`));
+    const assetGuid = meta2 ? metaGuid(meta2) : null;
+    if (!text || !assetGuid) continue;
+    groupByAssetGuid.set(assetGuid, {
+      name: scalar(text, "m_GroupName") ?? file.replace(/\.asset$/, ""),
+      file: `${ADDRESSABLES_DATA}/AssetGroups/${file}`,
+      isDefault: scalar(text, "m_GUID") === defaultGroupGuid,
+      includeInBuild: true,
+      bundleNaming: null,
+      loadPath: null,
+      remote: false
+    });
+  }
+  const schemasDir = join(groupsDir, "Schemas");
+  let schemaFiles = [];
+  try {
+    schemaFiles = (await readdir(schemasDir)).filter((file) => file.endsWith(".asset"));
+  } catch {
+    schemaFiles = [];
+  }
+  for (const file of schemaFiles) {
+    const text = await tryRead(join(schemasDir, file));
+    if (!text || scalar(text, "m_BundleNaming") === null) continue;
+    const groupGuid = /m_Group: \{[^}]*guid: (\w+)/.exec(text)?.[1];
+    const group = groupGuid ? groupByAssetGuid.get(groupGuid) : void 0;
+    if (!group) continue;
+    const loadPathId = nestedId(text, "m_LoadPath");
+    const loadPath = loadPathId ? profile.values.get(loadPathId) ?? loadPathId : null;
+    group.bundleNaming = Number.parseInt(scalar(text, "m_BundleNaming") ?? "", 10);
+    group.includeInBuild = scalar(text, "m_IncludeInBuild") !== "0";
+    group.loadPath = loadPath;
+    group.remote = loadPath !== null && !loadPath.includes(RUNTIME_PATH) && /^(https?:)?\/\/|^http/i.test(loadPath);
+  }
+  return {
+    textSerialized: true,
+    buildRemoteCatalog: scalar(settings, "m_BuildRemoteCatalog") === "1",
+    enableJsonCatalog: scalar(settings, "m_EnableJsonCatalog") === "1",
+    playerVersionOverride: scalar(settings, "m_overridePlayerVersion") ?? "",
+    activeProfile: profile.name,
+    groups: [...groupByAssetGuid.values()]
+  };
+}
+
+// src/unity/packages.ts
+import { readFile as readFile2, readdir as readdir2 } from "node:fs/promises";
+import { join as join2 } from "node:path";
+async function readJson(path) {
+  try {
+    return JSON.parse(await readFile2(path, "utf8"));
+  } catch {
+    return null;
+  }
+}
+async function readInstalledPackage(root, name) {
+  const manifest = await readJson(join2(root, "Packages/manifest.json"));
+  const requested = manifest?.dependencies?.[name];
+  if (typeof requested !== "string") return null;
+  const locked = (await readJson(join2(root, "Packages/packages-lock.json")))?.dependencies?.[name];
+  let version2 = /^\d+\.\d+\.\d+/.test(locked?.version ?? "") ? locked.version : null;
+  if (!version2 && /^\d+\.\d+\.\d+/.test(requested)) version2 = requested;
+  if (!version2) {
+    try {
+      const cache = join2(root, "Library/PackageCache");
+      for (const folder of (await readdir2(cache)).filter((entry) => entry.startsWith(`${name}@`)).sort()) {
+        const cached2 = await readJson(join2(cache, folder, "package.json"));
+        if (typeof cached2?.version === "string") version2 = cached2.version;
+      }
+    } catch {
+    }
+  }
+  return { requested, version: version2, source: typeof locked?.source === "string" ? locked.source : null };
+}
+function compareVersions(a, b) {
+  const parse2 = (value) => value.split(/[.-]/).slice(0, 3).map((part) => Number.parseInt(part, 10) || 0);
+  const [left, right] = [parse2(a), parse2(b)];
+  for (let index = 0; index < 3; index += 1) {
+    const difference = (left[index] ?? 0) - (right[index] ?? 0);
+    if (difference) return Math.sign(difference);
+  }
+  return 0;
+}
+
+// src/unity/project.ts
+import { readFile as readFile3, stat } from "node:fs/promises";
+import { isAbsolute, join as join3, resolve } from "node:path";
+var PLATFORM_CONFIG_PATH = "Assets/Resources/PlatformConfig.asset";
+var SIMULATOR_CONFIG_PATH = "ProjectSettings/Packages/com.susaplay.sdk/SimulatorConfig.json";
+async function isDirectory(path) {
+  try {
+    return (await stat(path)).isDirectory();
+  } catch {
+    return false;
+  }
+}
+async function resolveProjectRoot(projectPath, cwd = process.cwd()) {
+  const root = projectPath ? isAbsolute(projectPath) ? projectPath : resolve(cwd, projectPath) : cwd;
+  if (!await isDirectory(join3(root, "Assets")) || !await isDirectory(join3(root, "ProjectSettings"))) {
+    throw new ToolInputError(
+      `${root} is not a Unity project: it has no Assets and ProjectSettings folders. Pass projectPath with the folder that contains them.`
+    );
+  }
+  return root;
+}
+async function readProjectGameKey(root) {
+  let text;
+  try {
+    text = await readFile3(join3(root, PLATFORM_CONFIG_PATH), "utf8");
+  } catch {
+    return { kind: "missing" };
+  }
+  if (!text.startsWith("%YAML")) {
+    return { kind: "binary" };
+  }
+  const match = /^\s*_gameKey:\s*(.*)$/m.exec(text);
+  const value = (match?.[1] ?? "").trim().replace(/^(['"])(.*)\1$/, "$2").trim();
+  return value ? { kind: "found", gameKey: value } : { kind: "empty" };
+}
+
+// src/unity/project-settings.ts
+import { readFile as readFile4 } from "node:fs/promises";
+import { join as join4 } from "node:path";
+async function readPlayerSettings(root) {
+  let text;
+  try {
+    text = await readFile4(join4(root, "ProjectSettings/ProjectSettings.asset"), "utf8");
+  } catch {
+    return null;
+  }
+  if (!isTextSerialized(text)) return { textSerialized: false, bundleVersion: null, webglDefines: [] };
+  const block = /scriptingDefineSymbols:\s*\n((?:[ \t]+\S+:.*\n?)*)/.exec(text)?.[1] ?? "";
+  const webgl = /^[ \t]+WebGL:[ \t]*(.*)$/m.exec(block)?.[1] ?? "";
+  return {
+    textSerialized: true,
+    bundleVersion: scalar(text, "bundleVersion"),
+    webglDefines: webgl.split(";").map((define) => define.trim()).filter(Boolean)
+  };
+}
+async function readsAsText(root) {
+  try {
+    const text = await readFile4(join4(root, "ProjectSettings/EditorSettings.asset"), "utf8");
+    if (!isTextSerialized(text)) return false;
+    const mode = scalar(text, "m_SerializationMode");
+    return mode === null || mode === "2";
+  } catch {
+    return true;
+  }
+}
+
+// src/tools/check-project.ts
+var LATEST_KNOWN_SDK = "1.9.1";
+var ADDRESSABLES_BASE = "https://games.susaplay.com/addressables/";
+var findingSchema = object({
+  id: string2(),
+  severity: _enum(["error", "warning", "info"]),
+  message: string2(),
+  file: string2().optional()
+});
+async function checkProject(root, api) {
+  const findings = [];
+  const add = (finding) => findings.push(finding);
+  if (!await readsAsText(root)) {
+    add({
+      id: "SP020",
+      severity: "info",
+      message: "The project uses binary asset serialization, so its settings cannot be inspected. Switch to Force Text (Project Settings \u2192 Editor \u2192 Asset Serialization) to enable these checks.",
+      file: "ProjectSettings/EditorSettings.asset"
+    });
+  }
+  const sdk = await readInstalledPackage(root, "com.susaplay.sdk");
+  if (!sdk) {
+    add({ id: "SP001", severity: "error", message: "The SusaPlay SDK (com.susaplay.sdk) is not installed.", file: "Packages/manifest.json" });
+  } else if (sdk.version && compareVersions(sdk.version, LATEST_KNOWN_SDK) < 0) {
+    add({
+      id: "SP002",
+      severity: "warning",
+      message: `SusaPlay SDK ${sdk.version} is older than ${LATEST_KNOWN_SDK}. Update it to get the current fixes.`,
+      file: "Packages/manifest.json"
+    });
+  }
+  const key = await readProjectGameKey(root);
+  const gameKey = key.kind === "found" ? key.gameKey : null;
+  if (key.kind === "missing" || key.kind === "empty") {
+    add({
+      id: "SP003",
+      severity: "error",
+      message: key.kind === "missing" ? "There is no PlatformConfig asset, so the SDK cannot start. Create it with SusaPlay \u2192 Setup." : "The PlatformConfig asset has no game key. Set it with SusaPlay \u2192 Setup.",
+      file: PLATFORM_CONFIG_PATH
+    });
+  }
+  let game = null;
+  if (gameKey) {
+    if (!api.hasKey) {
+      add({ id: "SP004", severity: "info", message: "Not checked whether the game key belongs to one of your games: no SusaPlay API key is set." });
+    } else {
+      try {
+        const { games } = await api.get("/catalog/games");
+        const match = games.find((entry) => entry.gameKey === gameKey);
+        if (match) {
+          game = { gameId: match.gameId, name: match.name ?? match.gameId };
+        } else {
+          add({
+            id: "SP004",
+            severity: "error",
+            message: "The game key in PlatformConfig belongs to none of your games. Copy the key from the Developer Portal into SusaPlay \u2192 Setup.",
+            file: PLATFORM_CONFIG_PATH
+          });
+        }
+      } catch (error2) {
+        const reason = error2 instanceof ApiError ? error2.code : "unexpected error";
+        add({ id: "SP004", severity: "info", message: `Not checked whether the game key belongs to one of your games (${reason}).` });
+      }
+    }
+  }
+  if (sdk) {
+    let simulator = null;
+    try {
+      simulator = JSON.parse(await readFile5(join5(root, SIMULATOR_CONFIG_PATH), "utf8"));
+    } catch {
+      simulator = null;
+    }
+    if (!simulator) {
+      add({
+        id: "SP005",
+        severity: "info",
+        message: "No Editor Simulator configuration: in the Editor the game behaves as if nothing is configured. Run sync_simulator_config to download it.",
+        file: SIMULATOR_CONFIG_PATH
+      });
+    } else if (gameKey && simulator.game?.gameKey && simulator.game.gameKey !== gameKey) {
+      add({
+        id: "SP006",
+        severity: "warning",
+        message: "The Editor Simulator configuration belongs to another game: its game key differs from PlatformConfig. Run sync_simulator_config.",
+        file: SIMULATOR_CONFIG_PATH
+      });
+    }
+  }
+  const addressablesPackage = await readInstalledPackage(root, "com.unity.addressables");
+  const setup = addressablesPackage ? await readAddressablesSetup(root) : null;
+  if (setup?.textSerialized) {
+    const remoteGroups = setup.groups.filter((group) => group.includeInBuild && group.remote);
+    const settingsFile = "Assets/AddressableAssetsData/AddressableAssetSettings.asset";
+    if (remoteGroups.length && !setup.buildRemoteCatalog) {
+      add({
+        id: "SP011",
+        severity: "error",
+        message: `Remote groups exist (${remoteGroups.map((group) => group.name).join(", ")}) but Build Remote Catalog is off, so players never load updated content.`,
+        file: settingsFile
+      });
+    }
+    const expected = game ? `${ADDRESSABLES_BASE}${game.gameId}` : null;
+    const wrongPaths = /* @__PURE__ */ new Map();
+    for (const group of remoteGroups) {
+      const loadPath = (group.loadPath ?? "").replace(/\/+$/, "");
+      if (expected ? loadPath !== expected : !loadPath.startsWith(ADDRESSABLES_BASE)) {
+        wrongPaths.set(group.loadPath ?? "", [...wrongPaths.get(group.loadPath ?? "") ?? [], group.name]);
+      }
+    }
+    for (const [loadPath, names] of wrongPaths) {
+      add({
+        id: "SP010",
+        severity: "error",
+        message: `${names.map((name) => `"${name}"`).join(", ")} load${names.length === 1 ? "s" : ""} from ${loadPath || "an empty path"}${setup.activeProfile ? ` (profile "${setup.activeProfile}")` : ""}; the Remote Load Path must be ${expected ? `${expected}/` : `${ADDRESSABLES_BASE}<gameId>/`}.`,
+        file: settingsFile
+      });
+    }
+    for (const group of remoteGroups) {
+      if (group.bundleNaming === BUNDLE_NAMING_NO_HASH) {
+        add({
+          id: "SP014",
+          severity: "error",
+          message: `Group "${group.name}" names bundles without a hash; SusaPlay refuses such bundles at upload. Set Bundle Naming Mode to "Append Hash to Filename".`,
+          file: group.file
+        });
+      }
+    }
+    if (setup.buildRemoteCatalog) {
+      const defaultGroup = setup.groups.find((group) => group.isDefault);
+      if (defaultGroup && !defaultGroup.remote) {
+        add({
+          id: "SP012",
+          severity: "warning",
+          message: `The default group "${defaultGroup.name}" is local, so Unity's built-in data and MonoScripts bundles ship inside the player build. Every content update is then tied to one build: content built with a new build breaks the old one. Make the default group remote.`,
+          file: defaultGroup.file
+        });
+      }
+      const override = setup.playerVersionOverride;
+      if (!override || override.includes("[UnityEditor.PlayerSettings.bundleVersion]")) {
+        add({
+          id: "SP013",
+          severity: "warning",
+          message: override ? "The Player Version Override follows bundleVersion, so the catalog's name changes with every version bump and an older build stops finding new content. Set a constant, such as 1." : "There is no Player Version Override, so the catalog is named by build time and a new build stops reading content published for the old one. Set a constant, such as 1.",
+          file: settingsFile
+        });
+      }
+      const version2 = addressablesPackage?.version ?? null;
+      const player = await readPlayerSettings(root);
+      let jsonReason = null;
+      if (version2 && compareVersions(version2, "2.0.0") >= 0) {
+        if (setup.enableJsonCatalog) jsonReason = `Addressables ${version2} has Enable Json Catalog on. Turn it off.`;
+      } else if (version2 && compareVersions(version2, "1.21.3") < 0) {
+        jsonReason = `Addressables ${version2} writes only JSON catalogs. Update to 1.21.3 or later and add ENABLE_BINARY_CATALOG, or move to Addressables 2.`;
+      } else if (version2 && !player?.webglDefines.includes("ENABLE_BINARY_CATALOG")) {
+        jsonReason = `Addressables ${version2} writes JSON unless ENABLE_BINARY_CATALOG is in the WebGL scripting define symbols. Add it.`;
+      }
+      if (jsonReason) {
+        add({ id: "SP015", severity: "error", message: `The catalog will be JSON, which SusaPlay refuses. ${jsonReason}`, file: settingsFile });
+      }
+    }
+  }
+  return {
+    projectPath: root,
+    sdkVersion: sdk?.version ?? null,
+    gameKey,
+    game,
+    addressablesVersion: addressablesPackage?.version ?? null,
+    findings
+  };
+}
+function registerCheckProjectTool(server, api, cwd = () => process.cwd()) {
+  server.registerTool(
+    "check_project",
+    {
+      title: "Check a Unity project's SusaPlay setup",
+      description: "Reads a Unity project's files and reports SusaPlay integration mistakes, each with a stable ID: the SDK and its version, the game key, the Editor Simulator configuration, and the Addressables setup \u2014 Remote Load Path, remote catalog, built-in data placement, catalog naming, bundle naming and binary catalogs. Works offline; with an API key it also checks that the game key is one of your games.",
+      inputSchema: object({
+        projectPath: string2().optional().describe("The Unity project folder; defaults to the open workspace")
+      }),
+      outputSchema: object({
+        projectPath: string2(),
+        passed: boolean2(),
+        sdkVersion: string2().nullable(),
+        gameKey: string2().nullable(),
+        game: object({ gameId: string2(), name: string2() }).nullable(),
+        addressablesVersion: string2().nullable(),
+        findings: array(findingSchema)
+      }),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true }
+    },
+    async ({ projectPath }) => {
+      try {
+        const root = await resolveProjectRoot(projectPath, cwd());
+        const report = await checkProject(root, api);
+        const passed = !report.findings.some((finding) => finding.severity === "error");
+        const lines = [
+          `${passed ? "No errors" : "Problems found"} in ${root}${report.game ? ` (${report.game.name}, ${report.game.gameId})` : ""}.`,
+          ...report.findings.map((finding) => `- ${finding.id} ${finding.severity}: ${finding.message}`)
+        ];
+        if (!report.findings.length) lines.push("Everything checked looks right.");
+        return ok(lines.join("\n"), { ...report, passed });
+      } catch (error2) {
+        return fail(error2);
+      }
+    }
+  );
+}
+
 // src/tools/games.ts
 var READ_ONLY = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true };
 var versionSchema = object({
@@ -22087,47 +22602,381 @@ ${games.map((game) => `- ${describeGame(game)}`).join("\n")}` : "This developer 
   );
 }
 
+// src/tools/inspect-build.ts
+import { readFile as readFile7, readdir as readdir4 } from "node:fs/promises";
+import { isAbsolute as isAbsolute2, join as join7, resolve as resolve2 } from "node:path";
+
+// src/unity/build-source.ts
+import { readFile as readFile6, readdir as readdir3, stat as stat2 } from "node:fs/promises";
+import { join as join6, relative, sep } from "node:path";
+
+// src/unity/archive.ts
+import { open as open2 } from "node:fs/promises";
+import { inflateRawSync } from "node:zlib";
+var ZipFormatError = class extends Error {
+};
+var EOCD_SIGNATURE = 101010256;
+var CENTRAL_SIGNATURE = 33639248;
+var LOCAL_SIGNATURE = 67324752;
+var ZipArchive = class _ZipArchive {
+  constructor(handle, size, entries) {
+    this.handle = handle;
+    this.size = size;
+    this.entries = entries;
+  }
+  handle;
+  size;
+  entries;
+  static async open(path) {
+    const handle = await open2(path, "r");
+    try {
+      const { size } = await handle.stat();
+      const tailLength = Math.min(size, 22 + 65535);
+      const tail = Buffer.alloc(tailLength);
+      await handle.read(tail, 0, tailLength, size - tailLength);
+      let eocd = -1;
+      for (let index = tailLength - 22; index >= 0; index -= 1) {
+        if (tail.readUInt32LE(index) === EOCD_SIGNATURE) {
+          eocd = index;
+          break;
+        }
+      }
+      if (eocd < 0) throw new ZipFormatError("not a zip file");
+      const count = tail.readUInt16LE(eocd + 10);
+      const directorySize = tail.readUInt32LE(eocd + 12);
+      const directoryOffset = tail.readUInt32LE(eocd + 16);
+      if (count === 65535 || directoryOffset === 4294967295) {
+        throw new ZipFormatError("ZIP64 archives are not supported; a SusaPlay upload is at most 500 MB");
+      }
+      const directory = Buffer.alloc(directorySize);
+      await handle.read(directory, 0, directorySize, directoryOffset);
+      const entries = [];
+      let cursor = 0;
+      for (let index = 0; index < count; index += 1) {
+        if (directory.readUInt32LE(cursor) !== CENTRAL_SIGNATURE) throw new ZipFormatError("damaged central directory");
+        const method = directory.readUInt16LE(cursor + 10);
+        const compressedSize = directory.readUInt32LE(cursor + 20);
+        const entrySize = directory.readUInt32LE(cursor + 24);
+        const nameLength = directory.readUInt16LE(cursor + 28);
+        const extraLength = directory.readUInt16LE(cursor + 30);
+        const commentLength = directory.readUInt16LE(cursor + 32);
+        const localHeaderOffset = directory.readUInt32LE(cursor + 42);
+        const name = directory.toString("utf8", cursor + 46, cursor + 46 + nameLength);
+        entries.push({ name, compressedSize, size: entrySize, method, localHeaderOffset });
+        cursor += 46 + nameLength + extraLength + commentLength;
+      }
+      return new _ZipArchive(handle, size, entries);
+    } catch (error2) {
+      await handle.close();
+      throw error2;
+    }
+  }
+  async read(entry) {
+    const header = Buffer.alloc(30);
+    await this.handle.read(header, 0, 30, entry.localHeaderOffset);
+    if (header.readUInt32LE(0) !== LOCAL_SIGNATURE) throw new ZipFormatError(`damaged entry ${entry.name}`);
+    const start = entry.localHeaderOffset + 30 + header.readUInt16LE(26) + header.readUInt16LE(28);
+    const compressed = Buffer.alloc(entry.compressedSize);
+    await this.handle.read(compressed, 0, entry.compressedSize, start);
+    if (entry.method === 0) return compressed;
+    if (entry.method === 8) return inflateRawSync(compressed);
+    throw new ZipFormatError(`${entry.name} uses compression method ${entry.method}, which zip tools rarely write`);
+  }
+  close() {
+    return this.handle.close();
+  }
+};
+
+// src/unity/build-source.ts
+var JUNK_BASENAMES = /* @__PURE__ */ new Set([".DS_Store", "Thumbs.db", "desktop.ini"]);
+function isJunk(name) {
+  if (name.startsWith("__MACOSX/") || name.includes("/__MACOSX/")) return true;
+  const base = name.slice(name.lastIndexOf("/") + 1);
+  return JUNK_BASENAMES.has(base) || base.startsWith("._");
+}
+function singleRootPrefix(names) {
+  const roots = new Set(names.map((name) => name.includes("/") ? name.slice(0, name.indexOf("/") + 1) : ""));
+  if (roots.size !== 1) return "";
+  const [root] = [...roots];
+  return root ?? "";
+}
+async function walk(root, dir, out) {
+  for (const entry of await readdir3(dir, { withFileTypes: true })) {
+    const full = join6(dir, entry.name);
+    if (entry.isDirectory()) {
+      await walk(root, full, out);
+    } else if (entry.isFile()) {
+      out.push({ name: relative(root, full).split(sep).join("/"), size: (await stat2(full)).size });
+    }
+  }
+}
+async function openBuild(path) {
+  let info;
+  try {
+    info = await stat2(path);
+  } catch {
+    throw new ToolInputError(`${path} does not exist. Pass buildPath with the WebGL build folder or its .zip.`);
+  }
+  if (info.isDirectory()) {
+    const all = [];
+    await walk(path, path, all);
+    const kept2 = all.filter((file) => !isJunk(file.name));
+    const prefix2 = singleRootPrefix(kept2.map((file) => file.name));
+    return {
+      kind: "folder",
+      entryCount: all.length,
+      zippedBytes: null,
+      files: new Map(kept2.map((file) => [file.name.slice(prefix2.length), file.size])),
+      junk: all.filter((file) => isJunk(file.name)).map((file) => file.name),
+      originalNames: kept2.map((file) => file.name),
+      read: async (name) => {
+        try {
+          return await readFile6(join6(path, prefix2, name));
+        } catch {
+          return null;
+        }
+      },
+      close: async () => void 0
+    };
+  }
+  let archive;
+  try {
+    archive = await ZipArchive.open(path);
+  } catch (error2) {
+    if (error2 instanceof ZipFormatError) throw new ToolInputError(`${path} could not be read as a zip: ${error2.message}.`);
+    throw error2;
+  }
+  const entries = archive.entries.filter((entry) => !entry.name.endsWith("/"));
+  const kept = entries.filter((entry) => !isJunk(entry.name));
+  const prefix = singleRootPrefix(kept.map((entry) => entry.name));
+  const byName = new Map(kept.map((entry) => [entry.name.slice(prefix.length), entry]));
+  return {
+    kind: "zip",
+    entryCount: archive.entries.length,
+    zippedBytes: archive.size,
+    files: new Map([...byName].map(([name, entry]) => [name, entry.size])),
+    junk: entries.filter((entry) => isJunk(entry.name)).map((entry) => entry.name),
+    originalNames: kept.map((entry) => entry.name),
+    read: async (name) => {
+      const entry = byName.get(name);
+      return entry ? archive.read(entry) : null;
+    },
+    close: () => archive.close()
+  };
+}
+
+// src/tools/inspect-build.ts
+var MAX_ENTRIES = 1e3;
+var MAX_FILE_BYTES = 200 * 1024 * 1024;
+var MAX_TOTAL_BYTES = 1500 * 1024 * 1024;
+var MAX_ZIP_BYTES = 500 * 1024 * 1024;
+var ADDRESSABLES_BASE2 = "https://games.susaplay.com/addressables/";
+var REMOTE_HASH_KEY = "AddressablesMainContentCatalogRemoteHash";
+var MAX_LISTED = 10;
+var MB = (bytes) => `${Math.round(bytes / (1024 * 1024))} MB`;
+var listed = (names) => names.slice(0, MAX_LISTED).join(", ") + (names.length > MAX_LISTED ? ` and ${names.length - MAX_LISTED} more` : "");
+function remoteCatalogHashUrl(settings) {
+  const locations = settings?.m_CatalogLocations;
+  const remote = locations?.find((location) => location.m_Keys?.includes(REMOTE_HASH_KEY));
+  return typeof remote?.m_InternalId === "string" ? remote.m_InternalId : null;
+}
+async function serverDataCandidate(dir, catalogName, add) {
+  let names;
+  try {
+    names = await readdir4(dir);
+  } catch {
+    throw new ToolInputError(`serverDataPath ${dir} is not a folder. Pass the Addressables build output, such as ServerData/WebGL.`);
+  }
+  const catalogs = names.filter((name) => /^catalog_.+\.bin$/.test(name));
+  const wanted = catalogName ?? (catalogs.length === 1 ? catalogs[0] : null);
+  if (catalogName && !names.includes(catalogName)) {
+    add({
+      id: "B011",
+      severity: "error",
+      message: `The build requests ${catalogName}, but ${dir} has ${catalogs.length ? catalogs.join(", ") : "no binary catalog"}. Players of this build would never see this content: check the Player Version Override (SP013).`
+    });
+    return null;
+  }
+  if (catalogName && !names.includes(catalogName.replace(/\.bin$/, ".hash"))) {
+    add({ id: "B011", severity: "error", message: `${catalogName.replace(/\.bin$/, ".hash")} is missing next to ${catalogName}.` });
+  }
+  if (!wanted) {
+    add({ id: "B015", severity: "error", message: `No single binary catalog (catalog_*.bin) in ${dir} to check.` });
+    return null;
+  }
+  return {
+    source: "serverData",
+    bundles: readCatalogBundles(await readFile7(join7(dir, wanted))),
+    remoteFiles: new Set(names.filter((name) => name.endsWith(".bundle")))
+  };
+}
+async function liveCandidate(gameId, hashUrl, api, fetchImpl, add) {
+  const base = `${ADDRESSABLES_BASE2}${gameId}/`;
+  if (!hashUrl.startsWith(base) || !/^catalog_[^/]+\.hash$/.test(hashUrl.slice(base.length))) return null;
+  const response = await fetchImpl(hashUrl.replace(/\.hash$/, ".bin"), { signal: AbortSignal.timeout(3e4) });
+  if (response.status === 404) {
+    add({ id: "B011", severity: "error", message: `Nothing is published at ${hashUrl.replace(/\.hash$/, ".bin")}: this build would find no remote content.` });
+    return null;
+  }
+  if (!response.ok) throw new ApiError("NETWORK", `the live catalog answered ${response.status}`, response.status);
+  const bundles = readCatalogBundles(new Uint8Array(await response.arrayBuffer()));
+  let remoteFiles = null;
+  if (api.hasKey) {
+    const live = await api.get(`/catalog/game/${encodeURIComponent(gameId)}/addressables`);
+    remoteFiles = new Set((live.live ?? []).map((file) => file.filename ?? "").filter(Boolean));
+  } else {
+    add({ id: "B016", severity: "info", message: "Remote bundles were not checked against the live files: no SusaPlay API key is set." });
+  }
+  return { source: "live", bundles, remoteFiles };
+}
+async function inspectBuild(build2, options) {
+  const findings = [];
+  const add = (finding) => findings.push(finding);
+  const uncompressedBytes = [...build2.files.values()].reduce((sum, size) => sum + size, 0);
+  if (!build2.files.has("index.html") || !build2.originalNames.some((name) => name.endsWith(".loader.js"))) {
+    add({ id: "B001", severity: "error", message: "The build needs index.html at its root and a *.loader.js file. Zip the WebGL build output folder itself, not a folder of builds." });
+  }
+  if (build2.entryCount > MAX_ENTRIES) {
+    add({ id: "B002", severity: "error", message: `The build has ${build2.entryCount} entries; at most ${MAX_ENTRIES} are accepted.` });
+  }
+  const oversized = [...build2.files].filter(([, size]) => size > MAX_FILE_BYTES).map(([name]) => name);
+  if (oversized.length) add({ id: "B003", severity: "error", message: `Over the 200 MB per-file limit: ${listed(oversized)}.` });
+  if (uncompressedBytes > MAX_TOTAL_BYTES) add({ id: "B004", severity: "error", message: `The build is ${MB(uncompressedBytes)} uncompressed; the limit is 1.5 GB.` });
+  if (build2.zippedBytes !== null && build2.zippedBytes > MAX_ZIP_BYTES) {
+    add({ id: "B005", severity: "error", message: `The zip is ${MB(build2.zippedBytes)}; the limit is 500 MB.` });
+  }
+  const archives = [...build2.files.keys()].filter((name) => /\.(zip|rar|7z)$/i.test(name));
+  if (archives.length) {
+    add({
+      id: "B007",
+      severity: "warning",
+      message: `The build contains archive files that would be uploaded and served with it: ${listed(archives)}. Remove them from the build folder.`
+    });
+  }
+  if (build2.junk.length) {
+    add({ id: "B006", severity: "info", message: `${build2.junk.length} operating-system files are skipped by SusaPlay: ${listed(build2.junk)}.` });
+  }
+  const settingsBytes = await build2.read("StreamingAssets/aa/settings.json");
+  let remoteCatalogUrl = null;
+  let catalogChecked = null;
+  if (settingsBytes) {
+    try {
+      remoteCatalogUrl = remoteCatalogHashUrl(JSON.parse(settingsBytes.toString("utf8")));
+    } catch {
+      add({ id: "B015", severity: "error", message: "StreamingAssets/aa/settings.json could not be read." });
+    }
+    const expectedBase = options.gameId ? `${ADDRESSABLES_BASE2}${options.gameId}/` : ADDRESSABLES_BASE2;
+    if (remoteCatalogUrl && !remoteCatalogUrl.startsWith(expectedBase)) {
+      add({ id: "B010", severity: "error", message: `The build requests its remote catalog from ${remoteCatalogUrl}; it must come from ${options.gameId ? expectedBase : `${ADDRESSABLES_BASE2}<gameId>/`}. Fix the Remote Load Path (SP010) and rebuild.` });
+    }
+    if (!remoteCatalogUrl) {
+      add({ id: "B017", severity: "info", message: "The build requests no remote catalog: Addressables content published later never reaches it." });
+    }
+    const localBundles = new Set(
+      [...build2.files.keys()].filter((name) => name.startsWith("StreamingAssets/aa/WebGL/") && name.endsWith(".bundle")).map((name) => name.slice(name.lastIndexOf("/") + 1))
+    );
+    const catalogName = remoteCatalogUrl ? remoteCatalogUrl.slice(remoteCatalogUrl.lastIndexOf("/") + 1).replace(/\.hash$/, ".bin") : null;
+    let candidate = null;
+    try {
+      if (options.serverDataPath) {
+        candidate = await serverDataCandidate(options.serverDataPath, catalogName, add);
+      } else if (options.gameId && remoteCatalogUrl) {
+        candidate = await liveCandidate(options.gameId, remoteCatalogUrl, options.api, options.fetch ?? fetch, add);
+      } else {
+        const own2 = await build2.read("StreamingAssets/aa/catalog.bin");
+        candidate = own2 ? { source: "build", bundles: readCatalogBundles(own2), remoteFiles: null } : null;
+      }
+    } catch (error2) {
+      if (!(error2 instanceof CatalogFormatError)) throw error2;
+      add({ id: "B015", severity: "error", message: `The catalog could not be read: ${error2.message}. It may be JSON (refused, SP015) or from an unsupported Addressables version.` });
+    }
+    if (candidate) {
+      catalogChecked = candidate.source;
+      const against = candidate.source === "serverData" ? "the content in serverDataPath" : candidate.source === "live" ? "the live content" : "the build's own catalog";
+      const missingLocal = candidate.bundles.filter((bundle) => bundle.local && !localBundles.has(bundle.fileName)).map((bundle) => bundle.fileName);
+      if (missingLocal.length) {
+        add({
+          id: "B012",
+          severity: "error",
+          message: `${against[0]?.toUpperCase()}${against.slice(1)} expects ${missingLocal.length} bundle(s) inside the build that this build does not have \u2014 every player would hit a 404: ${listed(missingLocal)}. The content and the build come from different Addressables builds; build both together, or make the default group remote (SP012).`
+        });
+      }
+      if (candidate.remoteFiles) {
+        const missingRemote = candidate.bundles.filter((bundle) => !bundle.local && !candidate.remoteFiles.has(bundle.fileName)).map((bundle) => bundle.fileName);
+        if (missingRemote.length) {
+          add({ id: "B013", severity: "error", message: `The catalog names remote bundles that ${against} does not have: ${listed(missingRemote)}.` });
+        }
+      }
+      const gameBase = options.gameId ? `${ADDRESSABLES_BASE2}${options.gameId}/` : null;
+      const foreign = candidate.bundles.filter((bundle) => !bundle.local && !(gameBase ? bundle.internalId.startsWith(gameBase) : bundle.internalId.startsWith(ADDRESSABLES_BASE2)));
+      if (foreign.length) {
+        add({ id: "B014", severity: "error", message: `Remote bundles load from outside ${gameBase ?? `${ADDRESSABLES_BASE2}<gameId>/`}: ${listed(foreign.map((bundle) => bundle.internalId))}.` });
+      }
+    }
+  }
+  return {
+    passed: !findings.some((finding) => finding.severity === "error"),
+    kind: build2.kind,
+    fileCount: build2.files.size,
+    zippedBytes: build2.zippedBytes,
+    uncompressedBytes,
+    remoteCatalogUrl,
+    catalogChecked,
+    findings
+  };
+}
+function registerInspectBuildTool(server, api, cwd = () => process.cwd(), fetchImpl) {
+  server.registerTool(
+    "inspect_build",
+    {
+      title: "Inspect a WebGL build before uploading it",
+      description: "Checks a Unity WebGL build \u2014 its folder or .zip \u2014 against SusaPlay's upload rules (index.html, loader, file counts and sizes) so a build that would be refused is caught before a long upload. For Addressables it checks that every bundle the catalog expects inside the build is there, comparing with serverDataPath (content about to be published) or, with gameId, the live content.",
+      inputSchema: object({
+        buildPath: string2().describe("The WebGL build output folder, or its .zip"),
+        gameId: gameIdSchema.optional().describe("Compare with this game's live Addressables content"),
+        serverDataPath: string2().optional().describe("The Addressables build output to be published, such as ServerData/WebGL")
+      }),
+      outputSchema: object({
+        passed: boolean2(),
+        kind: _enum(["zip", "folder"]),
+        fileCount: number2(),
+        zippedBytes: number2().nullable(),
+        uncompressedBytes: number2(),
+        remoteCatalogUrl: string2().nullable(),
+        catalogChecked: _enum(["serverData", "live", "build"]).nullable(),
+        findings: array(object({ id: string2(), severity: _enum(["error", "warning", "info"]), message: string2(), file: string2().optional() }))
+      }),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true }
+    },
+    async ({ buildPath, gameId, serverDataPath }) => {
+      const absolute = (path) => isAbsolute2(path) ? path : resolve2(cwd(), path);
+      let build2 = null;
+      try {
+        build2 = await openBuild(absolute(buildPath));
+        const report = await inspectBuild(build2, {
+          gameId,
+          serverDataPath: serverDataPath ? absolute(serverDataPath) : void 0,
+          api,
+          fetch: fetchImpl
+        });
+        const size = report.zippedBytes !== null ? `${MB(report.zippedBytes)} zipped` : `${MB(report.uncompressedBytes)} uncompressed`;
+        const lines = [
+          `${report.passed ? "Ready to upload" : "Not ready to upload"}: ${report.fileCount} files, ${size}.`,
+          ...report.findings.map((finding) => `- ${finding.id} ${finding.severity}: ${finding.message}`)
+        ];
+        return ok(lines.join("\n"), { ...report });
+      } catch (error2) {
+        return fail(error2);
+      } finally {
+        await build2?.close();
+      }
+    }
+  );
+}
+
 // src/tools/simulator.ts
 import { mkdir, writeFile } from "node:fs/promises";
-import { dirname, join as join2 } from "node:path";
-
-// src/unity/project.ts
-import { readFile, stat } from "node:fs/promises";
-import { isAbsolute, join, resolve } from "node:path";
-var PLATFORM_CONFIG_PATH = "Assets/Resources/PlatformConfig.asset";
-var SIMULATOR_CONFIG_PATH = "ProjectSettings/Packages/com.susaplay.sdk/SimulatorConfig.json";
-async function isDirectory(path) {
-  try {
-    return (await stat(path)).isDirectory();
-  } catch {
-    return false;
-  }
-}
-async function resolveProjectRoot(projectPath, cwd = process.cwd()) {
-  const root = projectPath ? isAbsolute(projectPath) ? projectPath : resolve(cwd, projectPath) : cwd;
-  if (!await isDirectory(join(root, "Assets")) || !await isDirectory(join(root, "ProjectSettings"))) {
-    throw new ToolInputError(
-      `${root} is not a Unity project: it has no Assets and ProjectSettings folders. Pass projectPath with the folder that contains them.`
-    );
-  }
-  return root;
-}
-async function readProjectGameKey(root) {
-  let text;
-  try {
-    text = await readFile(join(root, PLATFORM_CONFIG_PATH), "utf8");
-  } catch {
-    return { kind: "missing" };
-  }
-  if (!text.startsWith("%YAML")) {
-    return { kind: "binary" };
-  }
-  const match = /^\s*_gameKey:\s*(.*)$/m.exec(text);
-  const value = (match?.[1] ?? "").trim().replace(/^(['"])(.*)\1$/, "$2").trim();
-  return value ? { kind: "found", gameKey: value } : { kind: "empty" };
-}
-
-// src/tools/simulator.ts
+import { dirname, join as join8 } from "node:path";
 function registerSimulatorTools(server, api, cwd = () => process.cwd()) {
   server.registerTool(
     "sync_simulator_config",
@@ -22174,7 +23023,7 @@ function registerSimulatorTools(server, api, cwd = () => process.cwd()) {
             `Game ${targetId} is not the game this project is set up for: its game key differs from the one in ${PLATFORM_CONFIG_PATH}. Nothing was written.`
           );
         }
-        const file = join2(root, SIMULATOR_CONFIG_PATH);
+        const file = join8(root, SIMULATOR_CONFIG_PATH);
         await mkdir(dirname(file), { recursive: true });
         await writeFile(file, `${JSON.stringify(config3, null, 2)}
 `, "utf8");
@@ -22211,6 +23060,8 @@ function createServer(dependencies = {}) {
   registerAddressablesTools(server, api);
   registerAnalyticsTools(server, api);
   registerSimulatorTools(server, api, dependencies.cwd);
+  registerCheckProjectTool(server, api, dependencies.cwd);
+  registerInspectBuildTool(server, api, dependencies.cwd, dependencies.fetch);
   return server;
 }
 
