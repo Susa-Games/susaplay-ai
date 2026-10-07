@@ -1,6 +1,7 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+
+import { tempDir } from "./temp.js";
 
 // A throwaway Unity project, written in the same text serialization Unity uses
 // (the layout follows a real Unity 6 project with Addressables 2.9).
@@ -27,7 +28,7 @@ const LOCAL_LOAD = "b3a67e7d546724e04a59dabe905f0c4c";
 const DEFAULT_GROUP_GUID = "785a2947223554a6b8cfa4c4c126ea07";
 
 export function makeProject(options: ProjectOptions = {}): string {
-  const root = mkdtempSync(join(tmpdir(), "susaplay-check-"));
+  const root = tempDir("susaplay-check-");
   const write = (path: string, text: string) => {
     mkdirSync(dirname(join(root, path)), { recursive: true });
     writeFileSync(join(root, path), text);

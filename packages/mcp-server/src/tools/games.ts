@@ -16,7 +16,7 @@ import {
 
 const READ_ONLY = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true };
 
-interface ApiVersion {
+export interface ApiVersion {
   versionId: string;
   platform?: string;
   status?: string;
@@ -29,7 +29,7 @@ interface ApiVersion {
   failure?: { code?: string; message?: string } | null;
 }
 
-interface RetentionPolicy {
+export interface RetentionPolicy {
   maxVersionsPerPlatform: number;
   minAgeHours: number;
   maxPendingPerGame: number;

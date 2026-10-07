@@ -16,7 +16,7 @@ import { gameIdSchema } from "./shared.js";
 const MAX_ENTRIES = 1000;
 const MAX_FILE_BYTES = 200 * 1024 * 1024;
 const MAX_TOTAL_BYTES = 1500 * 1024 * 1024;
-const MAX_ZIP_BYTES = 500 * 1024 * 1024;
+export const MAX_ZIP_BYTES = 500 * 1024 * 1024;
 const ADDRESSABLES_BASE = "https://games.susaplay.com/addressables/";
 const REMOTE_HASH_KEY = "AddressablesMainContentCatalogRemoteHash";
 const MAX_LISTED = 10;

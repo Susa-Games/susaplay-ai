@@ -1,15 +1,17 @@
-import { mkdtempSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 
 import { ZipArchive } from "../src/unity/archive.js";
+import { removeTempDirs, tempDir } from "./support/temp.js";
 import { writeZip } from "./support/zip-writer.js";
+
+afterAll(removeTempDirs);
 
 describe("ZipArchive", () => {
   it("lists entries and reads stored and deflated content", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "susaplay-zip-"));
+    const dir = tempDir("susaplay-zip-");
     for (const deflate of [false, true]) {
       const file = join(dir, `build-${deflate}.zip`);
       writeFileSync(file, writeZip({ "index.html": "<html>hi</html>", "Build/": "" }, { deflate }));
@@ -21,7 +23,7 @@ describe("ZipArchive", () => {
   });
 
   it("refuses a file that is not a zip", async () => {
-    const file = join(mkdtempSync(join(tmpdir(), "susaplay-zip-")), "not.zip");
+    const file = join(tempDir("susaplay-zip-"), "not.zip");
     writeFileSync(file, "plain text");
     await expect(ZipArchive.open(file)).rejects.toThrow("not a zip file");
   });

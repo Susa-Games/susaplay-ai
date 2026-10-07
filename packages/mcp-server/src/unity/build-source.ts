@@ -23,6 +23,10 @@ export function singleRootPrefix(names: string[]): string {
 /** A build as the server will see it, from a folder or a zip. */
 export interface BuildSource {
   kind: "zip" | "folder";
+  /** The folder or zip on disk. */
+  path: string;
+  /** The single root folder the server strips, `""` when there is none. */
+  prefix: string;
   /** Every entry the server counts, directories and junk included (zip only; files for a folder). */
   entryCount: number;
   zippedBytes: number | null;
@@ -61,6 +65,8 @@ export async function openBuild(path: string): Promise<BuildSource> {
     const prefix = singleRootPrefix(kept.map((file) => file.name));
     return {
       kind: "folder",
+      path,
+      prefix,
       entryCount: all.length,
       zippedBytes: null,
       files: new Map(kept.map((file) => [file.name.slice(prefix.length), file.size])),
@@ -90,6 +96,8 @@ export async function openBuild(path: string): Promise<BuildSource> {
   const byName = new Map(kept.map((entry) => [entry.name.slice(prefix.length), entry]));
   return {
     kind: "zip",
+    path,
+    prefix,
     entryCount: archive.entries.length,
     zippedBytes: archive.size,
     files: new Map([...byName].map(([name, entry]) => [name, entry.size])),

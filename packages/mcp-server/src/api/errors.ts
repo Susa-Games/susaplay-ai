@@ -48,6 +48,8 @@ export function guidanceFor(error: ApiError): string {
         `Too many requests with this API key. Wait ${error.details.retryAfterSeconds ?? 60} seconds before trying ` +
         "again, and avoid calling tools in a loop."
       );
+    case "SIGNED_URL_UNAVAILABLE":
+      return "SusaPlay could not prepare the upload: a configuration problem on SusaPlay's side, not in the build. Contact SusaPlay support.";
     case "ANALYTICS_UNAVAILABLE":
       return "Analytics is temporarily unavailable. Try again in a few minutes.";
     case "NETWORK":
