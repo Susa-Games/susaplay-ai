@@ -53,8 +53,8 @@ where to set it.
 | `check_project` | Checks a Unity project's SusaPlay SDK and Addressables setup | No |
 | `inspect_build` | Checks a WebGL build against SusaPlay's upload rules, and its Addressables catalog against the content it loads | No |
 | `sync_simulator_config` | Writes the game's configuration for the Editor Simulator into the Unity project | The project file only |
-| `publish_build` | Uploads a WebGL build for review | Yes: a new build in review; retention may delete old builds that are not live or in review |
-| `create_preview_link` | A single-use, 30-minute link to play a build in review | Yes: a preview session |
+| `publish_build` | Uploads a WebGL build: into review, or as `ready` to test when the game is private | Yes: a new build; retention may delete old builds that are not live or in review |
+| `create_preview_link` | A single-use, 30-minute link to play a build in review, or a private game's `ready` build | Yes: a preview session |
 
 Each tool needs the matching permission on the API key: reading games, reading analytics, or
 uploading builds.

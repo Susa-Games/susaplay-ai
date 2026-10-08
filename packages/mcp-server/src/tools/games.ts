@@ -112,8 +112,8 @@ export function registerGameTools(server: McpServer, api: ApiClient): void {
     {
       title: "Get a SusaPlay game with its builds",
       description:
-        "One game with every build: status (processing, extracting, failed, pending_review, live, deprecated, " +
-        "rejected), upload time, size, notes, review time and any failure reason, plus the retention policy and " +
+        "One game with every build: status (processing, extracting, failed, pending_review, ready — a private " +
+        "game's build, ready to test and not under review — live, deprecated, rejected), upload time, size, notes, review time and any failure reason, plus the retention policy and " +
         "which builds the next upload will delete.",
       inputSchema: z.object({ gameId: gameIdSchema }),
       outputSchema: z.object({

@@ -21,6 +21,9 @@ import { type ApiGame, gameIdSchema } from "./shared.js";
 const VERSION_PATTERN = /^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$/;
 const IN_FLIGHT = new Set(["processing", "extracting"]);
 const IN_REVIEW = new Set(["pending_review", "processing", "extracting"]);
+// Where processing ends: in review, or `ready` for a private game, whose builds
+// wait for nobody until the developer asks for the game to go public.
+const PROCESSED = new Set(["pending_review", "ready"]);
 const POLL_LIMIT_MS = 15 * 60 * 1000;
 const POLL_FIRST_MS = 2000;
 const POLL_MAX_MS = 10_000;
@@ -227,7 +230,7 @@ export async function publishBuild(
 
     // 7. Retention runs after processing; what it removed is what is no longer listed.
     let prunedVersions: string[] = [];
-    if (version.status === "pending_review") {
+    if (PROCESSED.has(version.status ?? "")) {
       const { versions: after = [] } = await api.get<{ versions: ApiVersion[] }>(`${gamePath}/versions`);
       const remaining = new Set(after.map((entry) => entry.versionId));
       prunedVersions = before.map((entry) => entry.versionId).filter((id) => id !== versionId && !remaining.has(id));
@@ -240,7 +243,9 @@ export async function publishBuild(
     const nextStep =
       status === "pending_review"
         ? "The build is waiting for SusaPlay's review; players see it once it is approved. Offer create_preview_link to play it first."
-        : status === "failed"
+        : status === "ready"
+          ? "The build is ready to test. The game is private, so the build is not sent for review: offer create_preview_link to play it, and when the game is ready, request public in the SusaPlay developer portal."
+          : status === "failed"
           ? `Processing failed${failure?.message ? `: ${failure.message}` : ""}. Fix the build and publish again — the same version number may be reused.`
           : `Still processing. Check later with get_game ${gameId}; a build stuck for more than 15 minutes is reported as failed and may be uploaded again.`;
     return {
@@ -341,9 +346,9 @@ export function registerPublishTools(
       title: "Create a preview link for a build in review",
       description:
         "Creates a link to play a build that is waiting for review, on the SusaPlay player site. The link works " +
-        "once and expires in 30 minutes; create a new one to play again. Only builds in pending_review can be " +
-        "previewed.",
-      inputSchema: z.object({ gameId: gameIdSchema, versionId: versionIdSchema.describe("A version in pending_review") }),
+        "once and expires in 30 minutes; create a new one to play again. Only builds in pending_review, or ready " +
+        "builds of a private game, can be previewed.",
+      inputSchema: z.object({ gameId: gameIdSchema, versionId: versionIdSchema.describe("A version in pending_review or ready") }),
       outputSchema: z.object({ gameId: z.string(), versionId: z.string(), url: z.string(), expiresAt: z.string().nullable() }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
     },
@@ -355,7 +360,7 @@ export function registerPublishTools(
         } catch (error) {
           if (error instanceof ApiError && error.code === "NOT_FOUND") {
             throw new ToolInputError(
-              `${gameId} has no build ${versionId} waiting for review. Only a pending_review build can be previewed; get_game lists the builds.`,
+              `${gameId} has no build ${versionId} that can be previewed. Only a pending_review or ready build can be previewed; get_game lists the builds.`,
             );
           }
           throw error;
