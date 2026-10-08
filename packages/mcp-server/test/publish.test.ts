@@ -113,6 +113,20 @@ async function publish(overrides: Partial<{ gameId: string; versionId: string; b
 }
 
 describe("publishBuild", () => {
+  it("ends on ready for a private game and points to the portal instead of review", async () => {
+    fake.polls = [{ versionId: "1.0.3", status: "extracting" }, { versionId: "1.0.3", status: "ready" }];
+    fake.versionsAfter = [
+      { versionId: "1.0.3", platform: "webgl", status: "ready" },
+      { versionId: "1.0.2", platform: "webgl", status: "live" },
+    ];
+    const { result } = await publish();
+
+    expect(result).toMatchObject({ status: "ready", failure: null, prunedVersions: ["1.0.0"] });
+    expect(result.nextStep).toContain("private");
+    expect(result.nextStep).toContain("request public");
+    expect(result.nextStep).not.toContain("Still processing");
+  });
+
   it("zips the folder, uploads it, processes it and reports what retention deleted", async () => {
     const tempBefore = readdirSync(tmpdir()).filter((name) => name.startsWith("susaplay-build-zip-"));
     const { result, sleeps } = await publish();

@@ -221,12 +221,12 @@ describe("create_preview_link", () => {
     expect(seen.at(-1)!.method).toBe("POST");
   });
 
-  it("explains that only a build in review can be previewed", async () => {
+  it("explains that only a build nobody approved yet can be previewed", async () => {
     const mcp = session();
     await mcp.open();
     const result = await mcp.callTool("create_preview_link", { gameId: "g1", versionId: "1.0.1" });
     expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain("Only a pending_review build can be previewed");
+    expect(result.content[0].text).toContain("Only a pending_review or ready build can be previewed");
   });
 });
 
