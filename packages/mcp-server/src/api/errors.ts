@@ -4,7 +4,7 @@ export class ApiError extends Error {
     readonly code: string,
     message: string,
     readonly status: number,
-    readonly details: { requiredScope?: string; retryAfterSeconds?: number } = {},
+    readonly details: { requiredScope?: string; retryAfterSeconds?: number; compatibility?: unknown } = {},
   ) {
     super(message);
     this.name = "ApiError";
@@ -43,6 +43,19 @@ export function guidanceFor(error: ApiError): string {
       return `That version already exists.${detail} Use a new version number.`;
     case "FAILED_PRECONDITION":
       return `SusaPlay cannot do this right now.${detail}`;
+    case "CONFLICT":
+      return `The state changed since the plan.${detail} Plan again with plan_addressables_publish (or get_addressables for a rollback), show the developer the new plan, then retry with its values.`;
+    case "INCOMPATIBLE_CATALOG":
+      return (
+        `Refused: this Addressables content would break the game's live build, so nothing changed.${detail} ` +
+        "Usually the content was built with other settings than the live build — another Remote Load Path or " +
+        "Player Version Override, or a group switched between local and remote. Rebuild the content from the " +
+        "same project and profile as the live build, or publish a new build first."
+      );
+    case "OPERATION_IN_PROGRESS":
+      return "Another Addressables publish or rollback is running for this game. Wait a few minutes, then check get_addressables before trying again.";
+    case "RELEASE_INCOMPLETE":
+      return `That release can no longer be restored: files it needs are gone.${detail} Upload and publish the content again instead.`;
     case "RATE_LIMITED":
       return (
         `Too many requests with this API key. Wait ${error.details.retryAfterSeconds ?? 60} seconds before trying ` +

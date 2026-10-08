@@ -266,7 +266,7 @@ export async function publishBuild(
 }
 
 /** Progress notifications for a request whose client sent a progress token. */
-function progressFor(ctx: {
+export function progressFor(ctx: {
   mcpReq: { _meta?: { progressToken?: string | number }; notify: (notification: { method: string; params?: Record<string, unknown> }) => Promise<void> };
 }): Progress {
   const token = ctx.mcpReq._meta?.progressToken;

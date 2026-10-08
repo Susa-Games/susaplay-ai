@@ -122,7 +122,7 @@ async function parseEnvelope<T>(response: Response): Promise<T> {
   const envelope = (json ?? {}) as {
     success?: boolean;
     data?: T;
-    error?: { code?: string; message?: string; requiredScope?: string } | string;
+    error?: { code?: string; message?: string; requiredScope?: string; compatibility?: unknown } | string;
   };
   if (response.ok && envelope.success && envelope.data !== undefined) {
     return envelope.data;
@@ -130,5 +130,10 @@ async function parseEnvelope<T>(response: Response): Promise<T> {
   const error = typeof envelope.error === "object" && envelope.error ? envelope.error : {};
   const code = error.code || (response.status === 404 ? "NOT_FOUND" : response.ok ? "INTERNAL" : `HTTP_${response.status}`);
   const message = typeof envelope.error === "string" ? envelope.error : (error.message ?? "");
-  throw new ApiError(code, message.slice(0, 300), response.status, { requiredScope: error.requiredScope });
+  // An INCOMPATIBLE_CATALOG refusal names every failed check; keep them all.
+  const limit = error.compatibility ? 2000 : 300;
+  throw new ApiError(code, message.slice(0, limit), response.status, {
+    requiredScope: error.requiredScope,
+    compatibility: error.compatibility,
+  });
 }
