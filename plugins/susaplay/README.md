@@ -71,6 +71,24 @@ admin sets it in the Cursor dashboard under **Plugins → Configure**.
   [server's README](../../packages/mcp-server/README.md#tools).
 - `susaplay-docs` — searches the SusaPlay documentation at `docs.susaplay.com`.
 
+## What it runs and sends
+
+- **`susaplay` server:** `node server/susaplay-mcp.mjs`, a single file built from
+  [`packages/mcp-server`](../../packages/mcp-server) (readable, not minified; the licenses of the
+  packages it includes are at its end). It runs on your machine over stdio.
+  - It calls the SusaPlay API at `https://api.susaplay.com` with your API key, and sends the key
+    nowhere else. Its User-Agent names the server version and your AI tool.
+  - Uploads go to Google Cloud Storage (`storage.googleapis.com`) through signed URLs the SusaPlay
+    API issues for each file; any other host is refused, except this machine for local testing.
+  - `inspect_build` with a game ID downloads that game's public Addressables catalog from
+    `https://games.susaplay.com/addressables/<gameId>/`.
+  - It reads the Unity project, build and Addressables folders you point it at. It writes only
+    `ProjectSettings/Packages/com.susaplay.sdk/SimulatorConfig.json` (`sync_simulator_config`) and
+    a temporary zip in your system's temp folder while publishing, removed afterwards.
+  - No telemetry and no analytics. Logs go to stderr, without the key.
+- **`susaplay-docs` server:** the SusaPlay documentation's search, at `https://docs.susaplay.com/mcp`.
+- **Skills:** text only; they run nothing.
+
 ## Support
 
 Issues: [github.com/Susa-Games/susaplay-ai/issues](https://github.com/Susa-Games/susaplay-ai/issues).
