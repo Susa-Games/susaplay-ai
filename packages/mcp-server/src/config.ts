@@ -11,7 +11,10 @@ export interface Config {
  * testing against staging; it must be HTTPS, or plain HTTP to this machine.
  */
 export function readConfig(env: NodeJS.ProcessEnv = process.env): Config {
-  const apiKey = env.SUSAPLAY_API_KEY?.trim() || null;
+  const rawKey = env.SUSAPLAY_API_KEY?.trim() || null;
+  // A plugin setting left empty can arrive as its unexpanded placeholder,
+  // such as "${user_config.api_key}": that is no key, not a wrong one.
+  const apiKey = rawKey && /^\$\{[^}]*\}$/.test(rawKey) ? null : rawKey;
   const raw = env.SUSAPLAY_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL;
   let url: URL;
   try {

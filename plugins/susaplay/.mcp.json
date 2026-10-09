@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "susaplay": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/server/susaplay-mcp.mjs"],
+      "env": { "SUSAPLAY_API_KEY": "${user_config.api_key}" }
+    },
+    "susaplay-docs": {
+      "type": "http",
+      "url": "https://docs.susaplay.com/mcp"
+    }
+  }
+}
