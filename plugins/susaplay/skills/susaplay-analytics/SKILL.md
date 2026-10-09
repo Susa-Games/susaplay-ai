@@ -17,10 +17,10 @@ comes from event timestamps on the server.
 ## Logging events
 
 ```csharp
-SusaPlaySDK.Analytics.LogEvent("level_start");
+SusaPlaySDK.Analytics.LogEvent("tutorial_complete");
 
 // Parameters are a JSON object, passed as a string
-SusaPlaySDK.Analytics.LogEvent("level_complete", "{\"levelId\":\"world_2_level_3\",\"attempt\":2}");
+SusaPlaySDK.Analytics.LogEvent("level_start", "{\"levelId\":\"world_2_level_3\"}");
 ```
 
 - `LogEvent(name, parameters = "{}")` is synchronous and only queues the event — safe in
@@ -32,6 +32,34 @@ SusaPlaySDK.Analytics.LogEvent("level_complete", "{\"levelId\":\"world_2_level_3
   batch is kept.
 - To unlock an achievement, use `SusaPlaySDK.Achievements` or the webhook event
   `achievement_unlocked` — not an analytics event.
+
+## Recommended events
+
+SusaPlay asks every game to send these events where the game has the moment they describe. They
+cover what only the game knows; sessions, purchases, achievements, saves and `level_up` are
+already recorded by the platform, so do not log those again.
+
+| Event | Parameters | Send when |
+| --- | --- | --- |
+| `level_start` | `levelId` | A level, stage or round begins |
+| `level_complete` | `levelId`, `durationSeconds`; `score` if the game has one | The player finishes it |
+| `level_fail` | `levelId`, `durationSeconds`; `reason` if known, such as `"timeout"` | The player fails or quits it |
+| `tutorial_begin` | — | The tutorial starts |
+| `tutorial_complete` | — | The tutorial ends |
+| `currency_earn` | `currency`, `amount`, `source` | The player earns the game's **own** currency (not the SusaPlay wallet) |
+| `currency_spend` | `currency`, `amount`, `itemId` | The player spends the game's own currency |
+| `store_open` | `placement`, such as `"main_menu"` | The game's store or shop screen opens |
+
+```csharp
+SusaPlaySDK.Analytics.LogEvent("level_complete",
+    "{\"levelId\":\"world_1_3\",\"durationSeconds\":74,\"score\":1200}");
+```
+
+- Use exactly these names and parameter names, so reports work the same across games. Add any
+  other events the game needs alongside them.
+- `levelId` is a stable string the game already uses for the level — not a display name.
+- Skip an event the game has no moment for: a game without levels sends no `level_*` events.
+- Today these events appear in the raw event export, not yet in the Developer Portal's charts.
 
 ## Flushing
 
