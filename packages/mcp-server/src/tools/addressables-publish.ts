@@ -7,7 +7,7 @@ import * as z from "zod";
 import type { ApiClient } from "../api/client.js";
 import { ApiError } from "../api/errors.js";
 import { UploadError, isAllowedUploadUrl, putFile } from "../api/upload.js";
-import { type CatalogBundle, CatalogFormatError, readCatalogBundles } from "../unity/catalog.js";
+import { type CatalogBundle, CatalogFormatError, readCatalogBundles, servedFileName } from "../unity/catalog.js";
 import type { ApiAddressables } from "./addressables.js";
 import { type Progress, progressFor } from "./publish.js";
 import { ToolInputError, fail, ok } from "./result.js";
@@ -110,7 +110,7 @@ export async function readContentSet(dir: string, remoteBase: string, catalog?: 
   // The server refuses this at publish (C3); found here before anything is uploaded.
   const base = remoteBase;
   const remote = bundles.filter((bundle) => !bundle.local);
-  const elsewhere = remote.filter((bundle) => !bundle.internalId.startsWith(base) || bundle.internalId.includes("{"));
+  const elsewhere = remote.filter((bundle) => bundle.internalId.includes("{") || servedFileName(bundle.internalId, base) === null);
   if (elsewhere.length) {
     throw new ToolInputError(
       `Not uploaded: ${elsewhere.length} remote bundle(s) load from somewhere other than ${base}, for example ` +
@@ -434,6 +434,7 @@ export function registerAddressablesPublishTools(
         catalogVersion: z.object({ from: z.string().nullable(), to: z.string().nullable() }),
         filesAdded: z.array(z.string()),
         filesRemoved: z.array(z.string()),
+        filesChanged: z.array(z.string()),
         filesUnchangedCount: z.number(),
         releasesDropped: z.array(z.number()),
         compatibility: compatibilitySchema,
@@ -452,6 +453,8 @@ export function registerAddressablesPublishTools(
           catalogVersion: { from: str(catalogVersion.from), to: str(catalogVersion.to) },
           filesAdded: strings(plan.filesAdded),
           filesRemoved: strings(plan.filesRemoved),
+          // An older API listed a replaced catalog as unchanged.
+          filesChanged: strings(plan.filesChanged),
           filesUnchangedCount: strings(plan.filesUnchanged).length,
           releasesDropped: numbers(plan.releasesDropped),
           compatibility: readCompatibility(plan.compatibility as ApiCompatibility),
@@ -461,6 +464,7 @@ export function registerAddressablesPublishTools(
         const lines = [
           `Publishing would create release ${result.releaseNumber ?? "?"}: catalog ${result.catalogVersion.from ?? "none"} → ${result.catalogVersion.to ?? "none"}.`,
           listSummary("Files added", result.filesAdded),
+          listSummary("Files replaced (a catalog keeps its name while its content changes)", result.filesChanged),
           listSummary("Files removed from players", result.filesRemoved),
           `Files unchanged: ${result.filesUnchangedCount}`,
           ...(result.releasesDropped.length ? [`Releases no longer kept afterwards: ${result.releasesDropped.join(", ")}.`] : []),

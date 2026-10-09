@@ -7,7 +7,7 @@ import * as z from "zod";
 import type { ApiClient } from "../api/client.js";
 import { ApiError } from "../api/errors.js";
 import { type BuildSource, openBuild } from "../unity/build-source.js";
-import { type CatalogBundle, CatalogFormatError, readCatalogBundles } from "../unity/catalog.js";
+import { type CatalogBundle, CatalogFormatError, readCatalogBundles, servedFileName } from "../unity/catalog.js";
 import type { Finding } from "./check-project.js";
 import { ToolInputError, fail, ok } from "./result.js";
 import { gameIdSchema } from "./shared.js";
@@ -91,10 +91,12 @@ async function liveCandidate(
   const base = `${ADDRESSABLES_BASE}${gameId}/`;
   // Only this game's public catalog is ever fetched: a URL read out of a build
   // file must not make the tool request anything else.
-  if (!hashUrl.startsWith(base) || !/^catalog_[^/]+\.hash$/.test(hashUrl.slice(base.length))) return null;
-  const response = await fetchImpl(hashUrl.replace(/\.hash$/, ".bin"), { signal: AbortSignal.timeout(30_000) });
+  const name = servedFileName(hashUrl, base);
+  if (!name || !/^catalog_[^/]+\.hash$/.test(name)) return null;
+  const binUrl = `${base}${name.replace(/\.hash$/, ".bin")}`;
+  const response = await fetchImpl(binUrl, { signal: AbortSignal.timeout(30_000) });
   if (response.status === 404) {
-    add({ id: "B011", severity: "error", message: `Nothing is published at ${hashUrl.replace(/\.hash$/, ".bin")}: this build would find no remote content.` });
+    add({ id: "B011", severity: "error", message: `Nothing is published at ${binUrl}: this build would find no remote content.` });
     return null;
   }
   if (!response.ok) throw new ApiError("NETWORK", `the live catalog answered ${response.status}`, response.status);
@@ -153,7 +155,12 @@ export async function inspectBuild(
       add({ id: "B015", severity: "error", message: "StreamingAssets/aa/settings.json could not be read." });
     }
     const expectedBase = options.gameId ? `${ADDRESSABLES_BASE}${options.gameId}/` : ADDRESSABLES_BASE;
-    if (remoteCatalogUrl && !remoteCatalogUrl.startsWith(expectedBase)) {
+    const servedFromBase = remoteCatalogUrl
+      ? options.gameId
+        ? servedFileName(remoteCatalogUrl, expectedBase) !== null
+        : remoteCatalogUrl.startsWith(ADDRESSABLES_BASE)
+      : true;
+    if (remoteCatalogUrl && !servedFromBase) {
       add({ id: "B010", severity: "error", message: `The build requests its remote catalog from ${remoteCatalogUrl}; it must come from ${options.gameId ? expectedBase : `${ADDRESSABLES_BASE}<gameId>/`}. Fix the Remote Load Path (SP010) and rebuild.` });
     }
     if (!remoteCatalogUrl) {
@@ -199,7 +206,7 @@ export async function inspectBuild(
         }
       }
       const gameBase = options.gameId ? `${ADDRESSABLES_BASE}${options.gameId}/` : null;
-      const foreign = candidate.bundles.filter((bundle) => !bundle.local && !(gameBase ? bundle.internalId.startsWith(gameBase) : bundle.internalId.startsWith(ADDRESSABLES_BASE)));
+      const foreign = candidate.bundles.filter((bundle) => !bundle.local && !(gameBase ? servedFileName(bundle.internalId, gameBase) !== null : bundle.internalId.startsWith(ADDRESSABLES_BASE)));
       if (foreign.length) {
         add({ id: "B014", severity: "error", message: `Remote bundles load from outside ${gameBase ?? `${ADDRESSABLES_BASE}<gameId>/`}: ${listed(foreign.map((bundle) => bundle.internalId))}.` });
       }

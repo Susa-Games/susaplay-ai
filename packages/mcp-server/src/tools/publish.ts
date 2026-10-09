@@ -305,7 +305,9 @@ export function registerPublishTools(
         serverDataPath: z
           .string()
           .optional()
-          .describe("Addressables content built with this build and published with it, such as ServerData/WebGL"),
+          .describe(
+            "Addressables content built with this build, such as ServerData/WebGL — checked against the build, not uploaded; upload_addressables stages it",
+          ),
       }),
       outputSchema: z.object({
         gameId: z.string(),

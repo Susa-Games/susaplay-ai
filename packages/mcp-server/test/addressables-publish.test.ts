@@ -142,6 +142,12 @@ describe("readContentSet", () => {
 
     writeFileSync(join(dir, "catalog_1.bin"), writeCatalog([`${BASE}{Profile.Version}/${BUNDLE}`]));
     await expect(readContentSet(dir, BASE)).rejects.toThrow(/somewhere other than/);
+
+    // A deeper path is not served; repeated slashes are.
+    writeFileSync(join(dir, "catalog_1.bin"), writeCatalog([`${BASE}v2/${BUNDLE}`]));
+    await expect(readContentSet(dir, BASE)).rejects.toThrow(/somewhere other than/);
+    writeFileSync(join(dir, "catalog_1.bin"), writeCatalog([`${BASE}/${BUNDLE}`]));
+    await expect(readContentSet(dir, BASE)).resolves.toMatchObject({ catalog: "catalog_1.bin" });
   });
 
   it("refuses a catalog whose bundles are not in the folder, a missing hash, and a JSON catalog", async () => {

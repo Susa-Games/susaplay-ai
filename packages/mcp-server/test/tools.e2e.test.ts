@@ -63,6 +63,7 @@ const routes: Record<string, unknown> = {
     releaseNumber: 5,
     filesAdded: ["catalog_8.bin", "catalog_8.hash", "b.bundle"],
     filesRemoved: ["catalog_7.bin", "catalog_7.hash"],
+    filesChanged: [],
     filesUnchanged: ["a.bundle"],
     catalogVersion: { from: "7", to: "8" },
     compatibility: {
@@ -275,6 +276,7 @@ describe("read tools against the API", () => {
       releaseNumber: 5,
       catalogVersion: { from: "7", to: "8" },
       filesRemoved: ["catalog_7.bin", "catalog_7.hash"],
+      filesChanged: [],
       filesUnchangedCount: 1,
       releasesDropped: [2],
       expectedLiveReleaseId: "4",

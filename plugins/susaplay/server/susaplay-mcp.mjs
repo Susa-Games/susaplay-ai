@@ -21854,6 +21854,11 @@ var BUNDLE_PROVIDER_SUFFIX = "AssetBundleProvider";
 var RUNTIME_PATH = "{UnityEngine.AddressableAssets.Addressables.RuntimePath}";
 var CatalogFormatError = class extends Error {
 };
+function servedFileName(url2, base) {
+  if (!url2.startsWith(base)) return null;
+  const rest = url2.slice(base.length).replace(/^\/+/, "");
+  return rest && !rest.includes("/") ? rest : null;
+}
 var Reader = class {
   constructor(bytes) {
     this.bytes = bytes;
@@ -22347,10 +22352,12 @@ async function serverDataCandidate(dir, catalogName, add) {
 }
 async function liveCandidate(gameId, hashUrl, api, fetchImpl, add) {
   const base = `${ADDRESSABLES_BASE}${gameId}/`;
-  if (!hashUrl.startsWith(base) || !/^catalog_[^/]+\.hash$/.test(hashUrl.slice(base.length))) return null;
-  const response = await fetchImpl(hashUrl.replace(/\.hash$/, ".bin"), { signal: AbortSignal.timeout(3e4) });
+  const name = servedFileName(hashUrl, base);
+  if (!name || !/^catalog_[^/]+\.hash$/.test(name)) return null;
+  const binUrl = `${base}${name.replace(/\.hash$/, ".bin")}`;
+  const response = await fetchImpl(binUrl, { signal: AbortSignal.timeout(3e4) });
   if (response.status === 404) {
-    add({ id: "B011", severity: "error", message: `Nothing is published at ${hashUrl.replace(/\.hash$/, ".bin")}: this build would find no remote content.` });
+    add({ id: "B011", severity: "error", message: `Nothing is published at ${binUrl}: this build would find no remote content.` });
     return null;
   }
   if (!response.ok) throw new ApiError("NETWORK", `the live catalog answered ${response.status}`, response.status);
@@ -22401,7 +22408,8 @@ async function inspectBuild(build2, options) {
       add({ id: "B015", severity: "error", message: "StreamingAssets/aa/settings.json could not be read." });
     }
     const expectedBase = options.gameId ? `${ADDRESSABLES_BASE}${options.gameId}/` : ADDRESSABLES_BASE;
-    if (remoteCatalogUrl && !remoteCatalogUrl.startsWith(expectedBase)) {
+    const servedFromBase = remoteCatalogUrl ? options.gameId ? servedFileName(remoteCatalogUrl, expectedBase) !== null : remoteCatalogUrl.startsWith(ADDRESSABLES_BASE) : true;
+    if (remoteCatalogUrl && !servedFromBase) {
       add({ id: "B010", severity: "error", message: `The build requests its remote catalog from ${remoteCatalogUrl}; it must come from ${options.gameId ? expectedBase : `${ADDRESSABLES_BASE}<gameId>/`}. Fix the Remote Load Path (SP010) and rebuild.` });
     }
     if (!remoteCatalogUrl) {
@@ -22443,7 +22451,7 @@ async function inspectBuild(build2, options) {
         }
       }
       const gameBase = options.gameId ? `${ADDRESSABLES_BASE}${options.gameId}/` : null;
-      const foreign = candidate.bundles.filter((bundle) => !bundle.local && !(gameBase ? bundle.internalId.startsWith(gameBase) : bundle.internalId.startsWith(ADDRESSABLES_BASE)));
+      const foreign = candidate.bundles.filter((bundle) => !bundle.local && !(gameBase ? servedFileName(bundle.internalId, gameBase) !== null : bundle.internalId.startsWith(ADDRESSABLES_BASE)));
       if (foreign.length) {
         add({ id: "B014", severity: "error", message: `Remote bundles load from outside ${gameBase ?? `${ADDRESSABLES_BASE}<gameId>/`}: ${listed(foreign.map((bundle) => bundle.internalId))}.` });
       }
@@ -22692,7 +22700,9 @@ function registerPublishTools(server, api, cwd = () => process.cwd(), fetchImpl)
         versionId: versionIdSchema,
         buildPath: string2().describe("The WebGL build output folder, or its .zip"),
         notes: string2().max(1e3).optional().describe("What changed, for the reviewer"),
-        serverDataPath: string2().optional().describe("Addressables content built with this build and published with it, such as ServerData/WebGL")
+        serverDataPath: string2().optional().describe(
+          "Addressables content built with this build, such as ServerData/WebGL \u2014 checked against the build, not uploaded; upload_addressables stages it"
+        )
       }),
       outputSchema: object({
         gameId: string2(),
@@ -22809,7 +22819,7 @@ async function readContentSet(dir, remoteBase, catalog) {
   }
   const base = remoteBase;
   const remote = bundles.filter((bundle) => !bundle.local);
-  const elsewhere = remote.filter((bundle) => !bundle.internalId.startsWith(base) || bundle.internalId.includes("{"));
+  const elsewhere = remote.filter((bundle) => bundle.internalId.includes("{") || servedFileName(bundle.internalId, base) === null);
   if (elsewhere.length) {
     throw new ToolInputError(
       `Not uploaded: ${elsewhere.length} remote bundle(s) load from somewhere other than ${base}, for example ${elsewhere[0].internalId}. Set the Remote Load Path to ${base} (check_project, SP010) and rebuild the content.`
@@ -23053,6 +23063,7 @@ function registerAddressablesPublishTools(server, api, cwd = () => process.cwd()
         catalogVersion: object({ from: string2().nullable(), to: string2().nullable() }),
         filesAdded: array(string2()),
         filesRemoved: array(string2()),
+        filesChanged: array(string2()),
         filesUnchangedCount: number2(),
         releasesDropped: array(number2()),
         compatibility: compatibilitySchema,
@@ -23071,6 +23082,8 @@ function registerAddressablesPublishTools(server, api, cwd = () => process.cwd()
           catalogVersion: { from: str(catalogVersion.from), to: str(catalogVersion.to) },
           filesAdded: strings(plan.filesAdded),
           filesRemoved: strings(plan.filesRemoved),
+          // An older API listed a replaced catalog as unchanged.
+          filesChanged: strings(plan.filesChanged),
           filesUnchangedCount: strings(plan.filesUnchanged).length,
           releasesDropped: numbers(plan.releasesDropped),
           compatibility: readCompatibility(plan.compatibility),
@@ -23080,6 +23093,7 @@ function registerAddressablesPublishTools(server, api, cwd = () => process.cwd()
         const lines = [
           `Publishing would create release ${result.releaseNumber ?? "?"}: catalog ${result.catalogVersion.from ?? "none"} \u2192 ${result.catalogVersion.to ?? "none"}.`,
           listSummary("Files added", result.filesAdded),
+          listSummary("Files replaced (a catalog keeps its name while its content changes)", result.filesChanged),
           listSummary("Files removed from players", result.filesRemoved),
           `Files unchanged: ${result.filesUnchangedCount}`,
           ...result.releasesDropped.length ? [`Releases no longer kept afterwards: ${result.releasesDropped.join(", ")}.`] : [],
