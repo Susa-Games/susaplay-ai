@@ -7,7 +7,7 @@
   "repository": "https://github.com/Susa-Games/susaplay-ai",
   "license": "Apache-2.0",
   "keywords": ["unity", "webgl", "games", "sdk", "publishing"],
-  "logo": "assets/logo.svg",
+  "logo": "assets/logo.png",
   "skills": "./skills/",
   "mcpServers": "./mcp.json",
   "variables": {

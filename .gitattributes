@@ -4,3 +4,4 @@ plugins/susaplay/server/susaplay-mcp.mjs linguist-generated=true -diff
 # Unity output used as test fixtures: byte for byte as Unity wrote it.
 *.bin binary
 *.bundle binary
+*.png binary
