@@ -35,11 +35,13 @@ jobs:
       - name: Plugin version matches the server version
         run: |
           server=$(node -p "require('./packages/mcp-server/package.json').version")
-          plugin=$(node -p "require('./plugins/susaplay/.claude-plugin/plugin.json').version")
-          if [ "$server" != "$plugin" ]; then
-            echo "::error::plugins/susaplay/.claude-plugin/plugin.json has version $plugin; the server is $server. Set both to the same version."
-            exit 1
-          fi
+          for manifest in .claude-plugin .cursor-plugin; do
+            plugin=$(node -p "require('./plugins/susaplay/$manifest/plugin.json').version")
+            if [ "$server" != "$plugin" ]; then
+              echo "::error::plugins/susaplay/$manifest/plugin.json has version $plugin; the server is $server. Set every manifest to the same version."
+              exit 1
+            fi
+          done
 
   # The committed bundle — checked against the source above — has no
   # dependencies, so it runs on every supported Node.js and operating system

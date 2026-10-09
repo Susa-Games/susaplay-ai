@@ -1,0 +1,12 @@
+{
+  "name": "susaplay",
+  "owner": { "name": "SusaPlay", "email": "support@susaplay.com" },
+  "metadata": { "description": "SusaPlay tools for AI coding assistants" },
+  "plugins": [
+    {
+      "name": "susaplay",
+      "source": "plugins/susaplay",
+      "description": "Integrate the SusaPlay SDK, check Unity projects, and publish to SusaPlay."
+    }
+  ]
+}

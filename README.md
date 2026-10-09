@@ -21,16 +21,25 @@ Claude Code asks for your SusaPlay API key when you install the plugin, and keep
 system's credential store; change it later with `/plugin configure susaplay`. Create the key in the [Developer Portal](https://dev.susaplay.com) under
 **API Keys**. Never paste it into a chat. See [the plugin's README](plugins/susaplay/README.md).
 
-Other tools: the MCP server is on npm as [`@susaplay/mcp`](https://www.npmjs.com/package/@susaplay/mcp)
-([manual setup](packages/mcp-server/README.md)). The Cursor plugin is in development.
+## Cursor
+
+The plugin is waiting for review in the Cursor Marketplace. Until it is listed, install it locally
+— see [the plugin's README](plugins/susaplay/README.md#install-in-cursor).
+
+## Other tools
+
+The MCP server is on npm as [`@susaplay/mcp`](https://www.npmjs.com/package/@susaplay/mcp)
+([manual setup](packages/mcp-server/README.md)); the skills in `plugins/susaplay/skills` follow the
+open `SKILL.md` format.
 
 ## Contents
 
 | Path | What it is |
 | --- | --- |
 | `packages/mcp-server` | Source of the MCP server, published to npm as `@susaplay/mcp` |
-| `plugins/susaplay` | The Claude Code plugin: skills in `skills/`, MCP servers in `.mcp.json`, and `server/susaplay-mcp.mjs`, the bundled server generated from the source |
+| `plugins/susaplay` | The Claude Code and Cursor plugin: skills in `skills/`, MCP servers in `.mcp.json` (Claude Code) and `mcp.json` (Cursor), and `server/susaplay-mcp.mjs`, the bundled server generated from the source |
 | `.claude-plugin/marketplace.json` | The Claude Code marketplace, named `susaplay` |
+| `.cursor-plugin/marketplace.json` | The Cursor marketplace. The plugin's Cursor manifest is `plugins/susaplay/.cursor-plugin/plugin.json`, with its MCP servers in `mcp.json` (pinned, so Cursor never reads Claude Code's `.mcp.json`) |
 
 ## Development
 
@@ -48,7 +57,7 @@ CI fails if the committed bundle differs from what the source produces.
 
 1. In a pull request, set the version in `packages/mcp-server/package.json`
    (`npm version X.Y.Z -w @susaplay/mcp --no-git-tag-version`) and the same version in
-   `plugins/susaplay/.claude-plugin/plugin.json` — CI checks they match, and Claude Code only
+   `plugins/susaplay/.claude-plugin/plugin.json` and `plugins/susaplay/.cursor-plugin/plugin.json` — CI checks they match, and Claude Code only
    updates an installed plugin when this version changes. Run `npm run build`, commit the rebuilt
    bundle with it, and check the plugin:
    `claude plugin validate --strict ./plugins/susaplay` and `claude plugin validate --strict .`.
