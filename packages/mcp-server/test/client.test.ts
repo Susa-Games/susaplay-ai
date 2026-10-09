@@ -105,6 +105,9 @@ describe("ApiClient", () => {
 describe("readConfig", () => {
   it("defaults to the public API and treats a blank key as missing", () => {
     expect(readConfig({ SUSAPLAY_API_KEY: "  " })).toEqual({ apiKey: null, apiBaseUrl: "https://api.susaplay.com" });
+    // An empty plugin setting that reached the server unexpanded.
+    expect(readConfig({ SUSAPLAY_API_KEY: "${user_config.api_key}" }).apiKey).toBeNull();
+    expect(readConfig({ SUSAPLAY_API_KEY: "${SUSAPLAY_API_KEY}" }).apiKey).toBeNull();
   });
 
   it("accepts HTTPS, or plain HTTP only to this machine", () => {
