@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/server";
 
 import { ApiClient } from "./api/client.js";
 import { type Config, readConfig } from "./config.js";
+import { registerAddressablesPublishTools } from "./tools/addressables-publish.js";
 import { registerAddressablesTools } from "./tools/addressables.js";
 import { registerAnalyticsTools } from "./tools/analytics.js";
 import { registerCheckProjectTool } from "./tools/check-project.js";
@@ -38,5 +39,6 @@ export function createServer(dependencies: ServerDependencies = {}): McpServer {
   registerCheckProjectTool(server, api, dependencies.cwd);
   registerInspectBuildTool(server, api, dependencies.cwd, dependencies.fetch);
   registerPublishTools(server, api, dependencies.cwd, dependencies.fetch);
+  registerAddressablesPublishTools(server, api, dependencies.cwd);
   return server;
 }

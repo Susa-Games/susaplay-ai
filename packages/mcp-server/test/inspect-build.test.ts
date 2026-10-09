@@ -138,4 +138,18 @@ describe("inspectBuild: Addressables content", () => {
     expect(elsewhere).not.toHaveBeenCalled();
     expect(result.ids).toEqual(["B010"]);
   });
+
+  it("accepts the double slash Unity writes for a Remote Load Path ending in '/', and fetches the clean URL", async () => {
+    const liveCatalog = writeCatalog([`${RUNTIME_PATH}/WebGL/${PLAYER_LOCAL}`]);
+    const fetch = vi.fn(async (url: string | URL | Request) => {
+      expect(String(url)).toBe(`${BASE}catalog_1.bin`);
+      return new Response(liveCatalog, { status: 200 });
+    });
+    const { ids } = await inspect(folder(buildFiles({ catalogUrl: `${BASE}/catalog_1.hash` })), { gameId: "g1", fetch: fetch as typeof globalThis.fetch });
+    expect(fetch).toHaveBeenCalledOnce();
+    expect(ids).not.toContain("B010");
+    // A deeper path is not served by the CDN.
+    const deeper = await inspect(folder(buildFiles({ catalogUrl: `${BASE}v2/catalog_1.hash` })), { gameId: "g1", fetch: vi.fn() as unknown as typeof globalThis.fetch });
+    expect(deeper.ids).toContain("B010");
+  });
 });

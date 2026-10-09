@@ -29,6 +29,18 @@ export const RUNTIME_PATH = "{UnityEngine.AddressableAssets.Addressables.Runtime
 
 export class CatalogFormatError extends Error {}
 
+/**
+ * The file a URL loads from a game's Remote Load Path (`base`, ending in "/"),
+ * or `null` when SusaPlay's CDN would not serve it. Unity writes the catalog URL
+ * as "{base}/catalog_x.hash", so a Remote Load Path ending in "/" gives "//";
+ * the CDN accepts repeated slashes there, but not a deeper path.
+ */
+export function servedFileName(url: string, base: string): string | null {
+  if (!url.startsWith(base)) return null;
+  const rest = url.slice(base.length).replace(/^\/+/, "");
+  return rest && !rest.includes("/") ? rest : null;
+}
+
 export interface CatalogBundle {
   /** The location as the player resolves it, e.g. `https://…/x.bundle` or `{…RuntimePath}/WebGL/x.bundle`. */
   internalId: string;

@@ -266,7 +266,7 @@ export async function publishBuild(
 }
 
 /** Progress notifications for a request whose client sent a progress token. */
-function progressFor(ctx: {
+export function progressFor(ctx: {
   mcpReq: { _meta?: { progressToken?: string | number }; notify: (notification: { method: string; params?: Record<string, unknown> }) => Promise<void> };
 }): Progress {
   const token = ctx.mcpReq._meta?.progressToken;
@@ -305,7 +305,9 @@ export function registerPublishTools(
         serverDataPath: z
           .string()
           .optional()
-          .describe("Addressables content built with this build and published with it, such as ServerData/WebGL"),
+          .describe(
+            "Addressables content built with this build, such as ServerData/WebGL — checked against the build, not uploaded; upload_addressables stages it",
+          ),
       }),
       outputSchema: z.object({
         gameId: z.string(),

@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
-import { CatalogFormatError, RUNTIME_PATH, readCatalogBundles } from "../src/unity/catalog.js";
+import { CatalogFormatError, RUNTIME_PATH, readCatalogBundles, servedFileName } from "../src/unity/catalog.js";
 import { writeCatalog } from "./support/catalog-writer.js";
 
 describe("readCatalogBundles", () => {
@@ -38,5 +38,16 @@ describe("readCatalogBundles", () => {
     const bundles = readCatalogBundles(readFileSync(real!));
     expect(bundles.length).toBeGreaterThan(0);
     for (const bundle of bundles) expect(bundle.fileName).toMatch(/\.bundle$/);
+  });
+});
+
+describe("servedFileName", () => {
+  const base = "https://games.susaplay.com/addressables/g1/";
+  it("names the file the CDN serves, with repeated slashes accepted and deeper paths refused", () => {
+    expect(servedFileName(`${base}catalog_1.hash`, base)).toBe("catalog_1.hash");
+    expect(servedFileName(`${base}//catalog_1.hash`, base)).toBe("catalog_1.hash");
+    expect(servedFileName(`${base}v2/catalog_1.hash`, base)).toBeNull();
+    expect(servedFileName(base, base)).toBeNull();
+    expect(servedFileName("https://games.susaplay.com/addressables/g10/x.bundle", base)).toBeNull();
   });
 });
