@@ -15,9 +15,13 @@ platform forwards with a signature the server can verify.
 
 ```csharp
 var response = await SusaPlaySDK.Backend.Get("/engagement/achievements/list?gameId=" + SusaPlaySDK.GameId);
-var posted = await SusaPlaySDK.Backend.Post("/some/route", "{\"key\":\"value\"}");
+var posted = await SusaPlaySDK.Backend.Post("/engagement/achievements/increment",
+    "{\"gameId\":\"" + SusaPlaySDK.GameId + "\",\"achievementId\":\"coins_100\",\"incrementBy\":1}");
 ```
 
+- Only these route prefixes exist at `api.susaplay.com`: `/save`, `/engagement`, `/analytics`,
+  `/webhooks`, `/catalog`, `/publicCatalog`, `/ai`, and the SDK's `/economy` routes. Anything else
+  (for example `/identity/...`) is not found.
 - The path must be relative and start with `/`; a full URL is refused, so the player's token never
   goes to another host. `Post` sends `{}` when the body is null.
 - Returns `HttpResponse`: `Success`, `Data`, `Error`, `StatusCode`.

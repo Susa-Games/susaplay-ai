@@ -8,7 +8,7 @@ game's ad settings.
 var result = await SusaPlaySDK.Ads.ShowRewarded();
 if (result.Rewarded)
 {
-    // The reward is already in the player's wallet. Refresh the UI only.
+    // Credited by the platform (held for a guest until they sign in). Refresh the UI only.
 }
 else if (result.Success)
 {
@@ -30,6 +30,7 @@ var interstitial = await SusaPlaySDK.Ads.ShowInterstitial();
 - The platform credits the reward itself. The game never adds coins for a rewarded ad.
 - An interstitial never rewards: `Rewarded` is always false.
 - `Reason` `ADS_DISABLED`: ads are turned off in the game's ad settings (interstitials too).
-  `TIMEOUT`: no answer within 180 seconds. Anything else comes from the ad network.
+  `TIMEOUT`: no answer within 180 seconds. Other values come from the page or the ad network,
+  such as `H5_AD_TIMEOUT`, `REWARD_CREDIT_FAILED` or `ADS_UNAVAILABLE`.
 - Unset ad settings mean 50 coins per reward, 10 rewards a day, 30 minutes apart. The ad settings
   are managed by SusaPlay; the developer contacts SusaPlay to change them.

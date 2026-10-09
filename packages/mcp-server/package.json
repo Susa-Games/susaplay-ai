@@ -1,6 +1,6 @@
 {
   "name": "@susaplay/mcp",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "MCP server for SusaPlay: check Unity projects, inspect and publish WebGL builds, and read games and analytics from an AI coding assistant",
   "license": "Apache-2.0",
   "keywords": [

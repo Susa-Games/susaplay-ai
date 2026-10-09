@@ -17,8 +17,8 @@ var response = await SusaPlaySDK.Webhooks.SendEventAsync("boss_defeated", 1);
 if (!response.Success) Debug.LogWarning(response.Error);
 ```
 
-- `SendEvent(eventName, value = null, parameters = null)` returns at once. `SendEventAsync`
-  returns an `HttpResponse` (`Success`, `Data`, `Error`, `StatusCode`). An empty name is not sent.
+- `SendEvent(eventName, value = null, parameters = null)` returns at once.
+  `SendEventAsync(eventName, value, parameters = null)` needs a value and returns an `HttpResponse` (`Success`, `Data`, `Error`, `StatusCode`). An empty name is not sent.
 - Values can be strings, numbers, booleans, lists and dictionaries.
 
 ## Reserved names

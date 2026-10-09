@@ -21,7 +21,7 @@ shows the game's **Remote Load Path**: `https://games.susaplay.com/addressables/
 | Remote Load Path (active profile) | The exact URL from the portal | It is compiled into the build; a wrong path cannot be fixed without a new build |
 | Bundle Naming Mode | `Filename And Hash` or `Full Path And Hash` | SusaPlay refuses bundles without Unity's 32-character hash in the name |
 | Catalog format | **Binary** (`catalog_*.bin`) | SusaPlay refuses JSON catalogs |
-| Player Version Override | A constant, such as `1` | Otherwise the catalog name changes with every build, and a new build stops reading content published for the old one |
+| Player Version Override | A constant number, such as `1` or `1.0` (up to three numeric parts, optionally `-suffix`) | Otherwise the catalog name changes with every build, and SusaPlay refuses a name that is not a number, such as Unity's default timestamp |
 | Built-in data and MonoScripts | In a **Remote** group | In a Local group they tie every content update to one player build |
 
 A binary catalog is the default in Addressables 2.x (Unity 6): leave **Enable Json Catalog** off.
@@ -60,8 +60,10 @@ The catalog a build requests and the bundles it ships must match the published c
 Without the tools: the portal's Addressables tab (drop the content folder, **Review and publish**,
 **Roll back to this release**), or the API steps on the SusaPlay docs' Addressables page.
 
-Publishing and rolling back need an API key with the `addressables:publish` permission (the
-"AI assistant with live publishing" or "CI publishing" preset). The developer changes the key in
+Uploading and planning need `addressables:write` (the "AI assistant" preset has it). Publishing
+and rolling back need `addressables:publish` (the "AI assistant with live publishing" or "CI
+publishing" preset); with the plain AI assistant preset, show the plan and let the developer
+publish in the portal. The developer changes the key in
 the plugin settings — never in the chat.
 
 ## The compatibility check
@@ -76,8 +78,9 @@ refuses it (`INCOMPATIBLE_CATALOG`) and nothing changes.
 | C3 | A remote bundle loads from outside the game's Remote Load Path, or from an unresolved `{…}` placeholder | Set the Remote Load Path to the portal's exact URL and rebuild the content |
 | C4 | The catalog cannot be read | Build a binary catalog |
 
-Without a live build, C1 and the check for bundles inside the build are skipped. There is no way
-to skip a failed check: fix the content or the build.
+Without a live build, or when the live build loads no remote catalog, C1 and the check for
+bundles inside the build are skipped. A developer cannot skip a failed check — fix the content or
+the build; only a SusaPlay admin can override it, with an audited reason.
 
 ## Releases and rollback
 
@@ -99,5 +102,6 @@ to skip a failed check: fix the content or the build.
 Catalogs are served uncached, so a publish reaches players on their next catalog check. Bundles
 are cached for a year, which is safe because a changed bundle gets a new name.
 
-If SusaPlay suspends a game's Addressables, bundle requests return `403`, the base build keeps
-running, and uploading and publishing are blocked until SusaPlay reinstates them.
+If SusaPlay suspends a game's Addressables, content requests that are not already cached fail, the
+base build keeps running, and uploading and publishing are blocked until SusaPlay reinstates
+them.

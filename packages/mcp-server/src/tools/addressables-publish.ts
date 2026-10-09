@@ -426,7 +426,8 @@ export function registerAddressablesPublishTools(
         "Shows exactly what publishing the game's staged Addressables would do, changing nothing: the release it " +
         "would create, files added, removed and unchanged, the catalog change, the compatibility check against the " +
         "live build, and which old release would no longer be kept. Show the plan to the developer. Its " +
-        "expectedLiveReleaseId and expectedStagingHash are what publish_addressables needs.",
+        "expectedLiveReleaseId and expectedStagingHash are what publish_addressables needs. Needs the " +
+        "addressables:write permission.",
       inputSchema: z.object({ gameId: gameIdSchema }),
       outputSchema: z.object({
         gameId: z.string(),

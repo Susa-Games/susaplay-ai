@@ -49,16 +49,21 @@ if (purchase.Success)
 }
 ```
 
-`PurchaseResult`: `Success` (paid and credited), `Status`, `WalletScope`, `Wallet`,
+`PurchaseResult`: `Success` (paid, and the wallet refreshed), `Status`, `WalletScope`, `Wallet`,
 `PlatformWallet`, `RequestId`, `ErrorCode`, `ErrorMessage`.
 
 | `Status` | Meaning |
 | --- | --- |
-| `paid` | Payment completed and credited |
+| `paid`, `done`, `successful` | Payment completed and credited (the provider's own word) |
 | `canceled`, `dismissed` | The player canceled or closed checkout |
 | `auth-dismissed` | A guest declined to sign in, which checkout requires |
 | `token-failed` | Checkout could not start; `ErrorMessage` says why — for example "Durable item is already owned" |
 | `timeout` | No answer within 180 seconds |
+| `close`, `return` | Checkout closed and the outcome is not known yet |
+
+Branch on `Success`, not on `Status`, which is for diagnostics. If `Success` is false but the
+`Status` says paid (for example `ErrorCode` `WALLET_REFRESH_FAILED`), the payment went through:
+re-read the wallet and the inventory.
 
 - The call can wait up to 3 minutes while the player is in checkout. Show a waiting state; do
   not block the game.

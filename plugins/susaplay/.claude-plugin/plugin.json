@@ -1,7 +1,7 @@
 {
   "name": "susaplay",
   "displayName": "SusaPlay",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Integrate the SusaPlay SDK, check Unity projects, and publish WebGL builds and Addressables to SusaPlay.",
   "author": { "name": "SusaPlay", "email": "support@susaplay.com", "url": "https://susaplay.com" },
   "homepage": "https://docs.susaplay.com/integration/ai-tools",

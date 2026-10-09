@@ -13,12 +13,14 @@ Editor and leave every module null.
    - with the SusaPlay MCP tools, run `sync_simulator_config` — it finds the game by the project's
      game key and writes `ProjectSettings/Packages/com.susaplay.sdk/SimulatorConfig.json`;
    - or in the Developer Portal, **Download for Unity Editor**, then in Unity
-     **SusaPlay → Simulator → Import configuration…**.
+     **SusaPlay → Simulator**, then **Import configuration…** in the window's Configuration
+     section.
 3. Commit `SimulatorConfig.json` so the team shares it. It holds nothing secret and never reaches a
    build. Fetch it again after changing achievements, items or ad settings in the portal.
 
 Without a configuration the simulator behaves like a game with nothing configured: the store is
-empty, every achievement is `NOT_FOUND`, every purchase fails with `ITEM_NOT_FOUND`. Saves,
+empty, every achievement is `NOT_FOUND`, wallet spends fail with `ITEM_NOT_FOUND`, and checkout
+purchases return `Status` `token-failed`. Saves,
 analytics, webhooks, sign-in and ads still work.
 
 ## The window — SusaPlay → Simulator
