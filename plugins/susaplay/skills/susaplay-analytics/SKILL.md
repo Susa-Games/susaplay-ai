@@ -11,6 +11,10 @@ description: Instrument a SusaPlay Unity WebGL game with analytics events and re
 monthly active players and retention are counted from it. A game built against an older SDK sends
 nothing unless it logs events itself — rebuild against a current SDK to appear in the reports.
 
+Only signed-in players are recorded. A guest has no platform session, so a guest's events are
+not stored, and active players and retention count signed-in players only. A batch holds at most
+500 events.
+
 There is no session-end event: `OnApplicationQuit` is not reliable in a browser, so session length
 comes from event timestamps on the server.
 
@@ -36,8 +40,8 @@ SusaPlaySDK.Analytics.LogEvent("level_start", "{\"levelId\":\"world_2_level_3\"}
 ## Recommended events
 
 SusaPlay asks every game to send these events where the game has the moment they describe. They
-cover what only the game knows; sessions, purchases, achievements, saves and `level_up` are
-already recorded by the platform, so do not log those again.
+cover what only the game knows; sessions, purchases, achievements and saves are already recorded
+by the platform, so do not log those again. `level_up` is the game's to send, as above.
 
 | Event | Parameters | Send when |
 | --- | --- | --- |
@@ -79,8 +83,10 @@ events for revenue.
 ## Reading activity
 
 - The Developer Portal → the game → **Analytics**.
-- With the SusaPlay MCP tools: `get_analytics` returns daily and 30-day active players and D1, D7
-  and D30 retention for the last 1–90 days. It needs the `analytics:read` permission.
+- With the SusaPlay MCP tools: `get_analytics` returns the distinct players over the last 1–90
+  days (`activePlayers`), the 30-day active players ending today (`monthlyActivePlayers`), the
+  daily series, and the latest D1, D7 and D30 retention. Answer "how many players" with
+  `activePlayers`, never by adding up daily counts. It needs the `analytics:read` permission.
 - **Revenue is deliberately not part of `get_analytics`.** The analytics pipeline's revenue figure
   is not SusaPlay's record of money. Do not present an analytics number as revenue.
 - An empty series is normal for a game with no players in the period, or one built against an SDK

@@ -32,11 +32,13 @@ else if (loaded.Success)
 - **An empty slot is a success**: `Success` is true, `Data` is empty and `Version` is 0. Check
   `Data`, not `Success`, to tell a new player from a returning one.
 - You never pass a version. The SDK keeps the slot's last version itself. On a
-  `409` conflict — another tab or device saved first — it re-reads the slot and retries, so the
-  last write wins.
+  `409` conflict — another tab or device saved first — it re-reads the slot and retries, up to
+  3 attempts, so the last write wins.
 - Writes to one slot are serialized; calls made while a write is in flight are merged into the
   next write with the newest data. Writes to a slot are at least 2 seconds apart.
-- A slot holds at most 500,000 characters.
+- A slot holds at most 500,000 characters, measured after the server re-serializes the JSON,
+  which can add a little. Leave headroom.
+- Saves need a signed-in player; a guest's save and load calls are refused.
 - Separate data that changes at different rates into different slots (`"progress"`,
   `"settings"`).
 - On failure (`Success` false, reason in `Error`), keep the state in memory and try again later

@@ -176,7 +176,7 @@ export async function publishBuild(
     if (retention && inReview.length >= retention.maxPendingPerGame) {
       throw new ToolInputError(
         `This game already has ${inReview.length} builds waiting for review or processing: ${inReviewList(before)}. ` +
-          `At most ${retention.maxPendingPerGame} are allowed. Wait for a review, or remove one in the Developer Portal.`,
+          `At most ${retention.maxPendingPerGame} are allowed. Wait for a review of one of them before uploading again.`,
       );
     }
 
@@ -290,13 +290,14 @@ export function registerPublishTools(
   server.registerTool(
     "publish_build",
     {
-      title: "Publish a WebGL build for review",
+      title: "Publish a WebGL build",
       description:
-        "Uploads a Unity WebGL build — its folder or .zip — to SusaPlay as a new version for review. It runs " +
+        "Uploads a Unity WebGL build — its folder or .zip — to SusaPlay as a new version. It runs " +
         "inspect_build first and stops on any error, zips a folder, uploads it with progress, and waits up to 15 " +
-        "minutes for SusaPlay to process it. Players do not see the build until SusaPlay approves it. Retention " +
-        "may delete old builds that are not live or in review — get_game shows which. Use a version number " +
-        "higher than the game's latest.",
+        "minutes for SusaPlay to process it. A public game's build goes to SusaPlay's review; a private game's " +
+        "build ends ready, for testing only. Players see neither until it is approved. Retention permanently " +
+        "deletes old builds that are not live or in review — get_game shows which; name them to the developer " +
+        "first. Use a new version number, conventionally higher than the game's latest.",
       inputSchema: z.object({
         gameId: gameIdSchema,
         versionId: versionIdSchema,
@@ -320,7 +321,7 @@ export function registerPublishTools(
         findings: z.array(z.object({ id: z.string(), severity: z.enum(["error", "warning", "info"]), message: z.string(), file: z.string().optional() })),
         nextStep: z.string(),
       }),
-      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true },
     },
     async ({ gameId, versionId, buildPath, notes, serverDataPath }, ctx) => {
       const absolute = (path: string) => (isAbsolute(path) ? path : resolve(cwd(), path));

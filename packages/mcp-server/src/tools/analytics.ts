@@ -11,6 +11,8 @@ interface ApiAnalytics {
   dates: string[];
   dau: number[];
   mau: number[];
+  activePlayers?: number | null;
+  monthlyActivePlayers?: number | null;
   retention: { d1?: number; d7?: number; d30?: number } | null;
 }
 
@@ -22,8 +24,9 @@ export function registerAnalyticsTools(server: McpServer, api: ApiClient): void 
     {
       title: "Get a game's player activity",
       description:
-        "Daily active players (DAU), 30-day active players (MAU) and the latest D1/D7/D30 retention for one game " +
-        "over the last 1–90 days. Revenue is deliberately not included: money figures come from the Developer " +
+        "Distinct players over the last 1–90 days, 30-day active players (MAU) ending today, daily active players " +
+        "(DAU) and the latest D1/D7/D30 retention for one game. Use activePlayers for \"how many players\": " +
+        "summing the daily DAU counts a player once per day. Revenue is deliberately not included: money figures come from the Developer " +
         "Portal's payment reports, not from analytics. Empty numbers are normal for a game built with a SusaPlay " +
         "SDK older than 1.3.0.",
       inputSchema: z.object({
@@ -36,6 +39,8 @@ export function registerAnalyticsTools(server: McpServer, api: ApiClient): void 
         dates: z.array(z.string()),
         dau: z.array(z.number()),
         mau: z.array(z.number()),
+        activePlayers: z.number().nullable().describe("Distinct players in the period; null when unknown"),
+        monthlyActivePlayers: z.number().nullable().describe("Distinct players in the 30 days ending today; null when unknown"),
         retention: z.object({ d1: z.number().nullable(), d7: z.number().nullable(), d30: z.number().nullable() }).nullable(),
         activeDays: z.number(),
         peakDau: z.number(),
@@ -55,12 +60,17 @@ export function registerAnalyticsTools(server: McpServer, api: ApiClient): void 
           dates: data.dates ?? [],
           dau,
           mau: (data.mau ?? []).map((value) => num(value) ?? 0),
+          activePlayers: num(data.activePlayers),
+          monthlyActivePlayers: num(data.monthlyActivePlayers),
           retention,
           activeDays: dau.filter((value) => value > 0).length,
           peakDau: dau.length ? Math.max(...dau) : 0,
         };
         const summary = result.activeDays
-          ? `${result.gameId}, last ${result.days} days: players on ${result.activeDays} days, peak DAU ${result.peakDau}` +
+          ? `${result.gameId}, last ${result.days} days: ` +
+            (result.activePlayers === null ? "" : `${result.activePlayers} players, `) +
+            `players on ${result.activeDays} days, peak DAU ${result.peakDau}` +
+            (result.monthlyActivePlayers === null ? "" : `, MAU ${result.monthlyActivePlayers}`) +
             (retention ? `; latest retention D1 ${percent(retention.d1)}, D7 ${percent(retention.d7)}, D30 ${percent(retention.d30)}.` : ".")
           : `${result.gameId}: no player activity recorded in the last ${result.days} days.`;
         return ok(summary, result);

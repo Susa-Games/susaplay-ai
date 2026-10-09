@@ -85,6 +85,8 @@ const routes: Record<string, unknown> = {
     dates: ["2026-10-01", "2026-10-02"],
     dau: [0, 4],
     mau: [3, 5],
+    activePlayers: 4,
+    monthlyActivePlayers: 6,
     revenue: [9.99, 0],
     retention: { d1: 0.5, d7: 0.25, d30: null },
   },
@@ -205,7 +207,9 @@ describe("read tools against the API", () => {
       expect(tools[name].outputSchema).toBeDefined();
     }
     expect(tools.sync_simulator_config.annotations).toMatchObject({ readOnlyHint: false, destructiveHint: false, idempotentHint: true });
-    for (const name of ["publish_build", "create_preview_link"]) {
+    // Retention after an upload permanently deletes old builds.
+    expect(tools.publish_build.annotations).toMatchObject({ readOnlyHint: false, destructiveHint: true, idempotentHint: false });
+    for (const name of ["create_preview_link"]) {
       expect(tools[name].annotations).toMatchObject({ readOnlyHint: false, destructiveHint: false, idempotentHint: false });
     }
     expect(tools.publish_build.description).toContain("Retention");
@@ -307,7 +311,15 @@ describe("read tools against the API", () => {
     const mcp = session();
     await mcp.open();
     const result = await mcp.callTool("get_analytics", { gameId: "g1", days: 7 });
-    expect(result.structuredContent).toMatchObject({ dau: [0, 4], activeDays: 1, peakDau: 4 });
+    expect(result.structuredContent).toMatchObject({
+      dau: [0, 4],
+      activeDays: 1,
+      peakDau: 4,
+      activePlayers: 4,
+      monthlyActivePlayers: 6,
+    });
+    expect(result.content[0].text).toContain("4 players");
+    expect(result.content[0].text).toContain("MAU 6");
     expect(result.structuredContent).not.toHaveProperty("revenue");
     expect(seen.at(-1)!.url).toBe("/analytics/dashboard?gameId=g1&days=7");
   });

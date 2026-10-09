@@ -46,8 +46,8 @@ In Cursor, the key is the plugin variable `SUSAPLAY_API_KEY`. On a Teams or Ente
 admin sets it in the Cursor dashboard under **Plugins → Configure**.
 
 - Create the key in the [Developer Portal](https://dev.susaplay.com) under **API Keys**. The
-  **AI assistant** preset can read, check, upload builds and stage Addressables; **AI assistant
-  with live publishing** can also publish and roll back Addressables.
+  **AI assistant** preset can read, check, upload builds, and stage and plan Addressables;
+  **AI assistant with live publishing** can also publish and roll back Addressables.
 - **Never paste a key into a chat.** If you did, revoke it in the portal and create a new one.
 - Without a key, the skills, the docs server and the local checks still work; the tools that need
   the API say where to set it.
@@ -66,8 +66,9 @@ admin sets it in the Cursor dashboard under **Plugins → Configure**.
 **MCP servers:**
 
 - `susaplay` — tools that read your games, check projects and builds, and publish. Tools that
-  change something players see (`publish_addressables`, `rollback_addressables`) ask for your
-  confirmation first. The full list is in the
+  change something players see (`publish_addressables`, `rollback_addressables`) are marked
+  destructive and tell the assistant to show you the plan and wait for your confirmation; your
+  AI tool may also ask before running them. The full list is in the
   [server's README](../../packages/mcp-server/README.md#tools).
 - `susaplay-docs` — searches the SusaPlay documentation at `docs.susaplay.com`.
 

@@ -43,24 +43,32 @@ from a secret.
 
 ## Version numbers
 
-`x.y.z`, optionally with a suffix: `1.0.9`, `1.0.10`, `1.1.0-beta`. Each upload needs a new
-version; a `failed` version may be uploaded again with the same number.
+`x.y.z`, optionally with `-` and a run of letters and digits: `1.0.9`, `1.0.10`, `1.1.0-beta`
+(`1.1.0-beta.1` and `1.1.0-rc-2` are refused). Each upload needs a new, unused version —
+conventionally higher than the latest; a `failed` version may be uploaded again with the same
+number.
 
 ## Limits and retention
 
 | Rule | Value |
 | --- | --- |
-| Files in the archive | 1,000 |
+| Entries in the zip (folders included) | 1,000 |
 | One file, uncompressed | 200 MB |
 | Whole archive, uncompressed | 1.5 GB |
-| Builds kept per platform | the 5 most recent |
+| The zip itself | 500 MB |
+| Builds kept per game | the 5 most recent, plus older builds that are protected (below) |
 | Grace period before a build can be removed | 24 hours |
 | Builds in review at once | 3 (builds still processing count) |
 
 Never deleted automatically: the live build, builds in review or processing, and anything inside
 the grace period. A `ready` build of a private game is kept like any other build — among the 5
-most recent. A `failed` build is removed by the next successful upload. A fourth build while
-three are in review is refused with `409`.
+most recent — so upload sparingly while a **Request public** is pending, or its build can be
+removed. A `failed` build is removed by the next successful upload, whatever its age. A fourth
+build while three are in review is refused with `409`; developers cannot delete builds, so wait
+for a review.
+
+A build in `processing` or `extracting` for more than 15 minutes is reported as `failed`
+(`PROCESSING_TIMEOUT`), and its version may be uploaded again.
 
 ## Statuses
 

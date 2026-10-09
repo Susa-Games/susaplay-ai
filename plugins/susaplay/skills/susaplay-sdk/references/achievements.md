@@ -16,7 +16,8 @@ var all = await SusaPlaySDK.Achievements.List();
 ```
 
 - `Unlock` on an incremental achievement, or `Increment` on a one-shot one, fails with
-  `400 INVALID_ARGUMENT`. `amount` must be greater than zero.
+  `400 INVALID_ARGUMENT`. `amount` must be greater than zero; the SDK refuses
+  zero, a negative amount or an empty id itself, with `StatusCode` 0 and no server call.
 - Unlocking twice is safe: the second awards nothing.
 - The server keeps the counter; the game never tracks the threshold.
 - All three return an `HttpResponse`: `Success`, `Data` (the response body as JSON text:

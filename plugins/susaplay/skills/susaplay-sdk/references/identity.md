@@ -4,12 +4,13 @@ The page resolves the player before `Initialize()` returns. There is nothing to 
 
 | Property | Type | Notes |
 | --- | --- | --- |
-| `Uid` | `string` | The platform player ID |
-| `DisplayName` | `string` | May be empty for a guest |
+| `Uid` | `string` | The platform player ID. Null for a guest |
+| `DisplayName` | `string` | Null for a guest |
 | `IsGuest` | `bool` | The player has not signed in |
 | `IsAuthenticated` | `bool` | The player has an account |
 
-All of them are null or false before `Initialize()` completes.
+`SusaPlaySDK.Auth` itself is null until `Initialize()` completes; reading `Auth.Uid` before that
+throws. Await `Initialize()` first.
 
 ```csharp
 await SusaPlaySDK.Initialize();
@@ -19,10 +20,11 @@ if (SusaPlaySDK.Auth.IsGuest)
 }
 ```
 
-- Guests can use saves, the wallet and analytics like signed-in players.
-- When a guest signs in, the platform links their progress to the account. The game does not
-  drive or migrate anything.
-- A guest's `Uid` can change when they later sign in. Do not use it as a permanent key in your
-  own backend without handling that.
+- **A guest has no platform session.** Cloud saves, achievements, wallet and inventory calls,
+  analytics and webhook events are refused (401) until the player signs in. Design guest play to
+  work without them: keep a guest's progress locally and save it after sign-in.
+- Rewarded ads work for a guest: the reward is held and credited to the account when the guest
+  signs in. Nothing else carries over automatically.
+- A guest's `Uid` is null; it is set when the player signs in.
 - The SDK attaches the player's token to every platform request itself. Never trust a player ID
   sent from the client to your own server.
