@@ -1,0 +1,23 @@
+{
+  "name": "susaplay",
+  "description": "Integrate the SusaPlay SDK, check Unity projects, and publish WebGL builds and Addressables to SusaPlay.",
+  "version": "0.3.0",
+  "author": { "name": "SusaPlay", "email": "support@susaplay.com" },
+  "homepage": "https://docs.susaplay.com/integration/ai-tools",
+  "repository": "https://github.com/Susa-Games/susaplay-ai",
+  "license": "Apache-2.0",
+  "keywords": ["unity", "webgl", "games", "sdk", "publishing"],
+  "logo": "assets/logo.svg",
+  "skills": "./skills/",
+  "mcpServers": "./mcp.json",
+  "variables": {
+    "type": "object",
+    "properties": {
+      "SUSAPLAY_API_KEY": {
+        "type": "string",
+        "title": "SusaPlay API key",
+        "description": "Create one in the SusaPlay Developer Portal under API Keys. The \"AI assistant\" preset is recommended."
+      }
+    }
+  }
+}

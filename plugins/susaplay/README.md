@@ -19,10 +19,31 @@ On Claude Code older than 2.1.275:
 
 Requires Node.js 20 or later.
 
+## Install in Cursor
+
+The plugin is waiting for review in the Cursor Marketplace. Until it is listed, install it
+locally:
+
+```bash
+git clone https://github.com/Susa-Games/susaplay-ai.git
+mkdir -p ~/.cursor/plugins/local
+ln -s "$PWD/susaplay-ai/plugins/susaplay" ~/.cursor/plugins/local/susaplay
+```
+
+Then run **Developer: Reload Window** and check **Customize**: the four skills and the two MCP
+servers should appear. On a Teams or Enterprise plan, an admin must turn on **Allow Local Plugin
+Imports** first. `git pull` in `susaplay-ai` updates it.
+
+On Windows, copy the `plugins/susaplay` folder to `%USERPROFILE%\.cursor\plugins\local\susaplay`
+instead of linking it.
+
 ## The API key
 
-Claude Code asks for a SusaPlay API key when you install the plugin and keeps it in your system's
-credential store, not in a settings file. Change it later with `/plugin configure susaplay`.
+In Claude Code, the plugin asks for a SusaPlay API key when you install it and keeps it in your
+system's credential store, not in a settings file. Change it later with `/plugin configure susaplay`.
+
+In Cursor, the key is the plugin variable `SUSAPLAY_API_KEY`. On a Teams or Enterprise plan, an
+admin sets it in the Cursor dashboard under **Plugins → Configure**.
 
 - Create the key in the [Developer Portal](https://dev.susaplay.com) under **API Keys**. The
   **AI assistant** preset can read, check, upload builds and stage Addressables; **AI assistant
