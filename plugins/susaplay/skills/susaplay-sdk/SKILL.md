@@ -1,6 +1,6 @@
 ---
 name: susaplay-sdk
-description: Integrate the SusaPlay Unity SDK (com.susaplay.sdk) into a WebGL game, or use any of its modules — initialization, the player, cloud saves, the store and purchases, ads, achievements, analytics, game-side webhooks, Backend and Api — and test it in Play Mode with the Editor Simulator. Use when the user adds SusaPlay to a Unity project or writes code against SusaPlaySDK.
+description: Integrate the SusaPlay Unity SDK (com.susaplay.sdk) into a WebGL game, or use any of its modules — initialization, the player, cloud saves, the store and purchases, ads, achievements, analytics, game-side webhooks, Backend and Api — and test it in Play Mode with the Editor Simulator. Use when the user adds SusaPlay to a Unity project, asks to make a game SusaPlay-ready or set it up to SusaPlay's standards, or writes code against SusaPlaySDK.
 ---
 
 # SusaPlay SDK
@@ -68,6 +68,26 @@ code for a module — the result types differ between modules.
 | `Backend`, `Api` | Low-level calls, rarely needed | [references/backend-and-api.md](references/backend-and-api.md) |
 
 Testing in Play Mode without a build: [references/editor-simulator.md](references/editor-simulator.md).
+
+## Making a game SusaPlay-ready
+
+When asked to set a game up "for SusaPlay" or to SusaPlay's standards, go through this list and do
+each item that fits the game. Report what was done and what was skipped, and why.
+
+1. The SDK installed and the game key set (**SusaPlay → Setup**).
+2. `await SusaPlaySDK.Initialize()` at startup, then `MarkGameLoaded()` when the first scene is
+   playable.
+3. Progress saved with `CloudSave` — JSON data; an empty slot means a new player.
+4. Purchases, the wallet and ads through `Purchases` and `Ads`, granting only on the platform's
+   confirmation (`Success` for purchases, `Rewarded` for ads).
+5. Achievements only with IDs registered in the Developer Portal; with the MCP tools,
+   `sync_simulator_config` brings them into the Editor Simulator.
+6. `level_up` with a `level` whenever the player's level changes, if the game has player levels.
+7. The recommended analytics events — see the `susaplay-analytics` skill.
+8. With the MCP tools, `check_project`; then test in Play Mode with the Editor Simulator.
+
+Do not invent features or events beyond this list and the references. Never move the developer's
+money or items logic to the client.
 
 ## Rules that apply everywhere
 
