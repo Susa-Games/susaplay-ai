@@ -17,6 +17,8 @@ Editor and leave every module null.
      section.
 3. Commit `SimulatorConfig.json` so the team shares it. It holds nothing secret and never reaches a
    build. Fetch it again after changing achievements, items or ad settings in the portal.
+   Fetch it again after updating to SDK 1.11.0 too: coin spends charge the `coinPrice` the file
+   now carries, and an item without the coin opt-in cannot be bought with coins.
 
 Without a configuration the simulator behaves like a game with nothing configured: the store is
 empty, every achievement is `NOT_FOUND`, wallet spends fail with `ITEM_NOT_FOUND`, and checkout

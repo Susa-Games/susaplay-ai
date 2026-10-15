@@ -12,9 +12,27 @@ transaction; it never writes a balance and never grants an item before the platf
 | `GetTopupPacks()` | `TopupPacksResult` | `Success`, `Packs`, `Error` |
 | `GetInventory()` | `InventoryResult` | `Success`, `Items`, `Consumables`, `Error` |
 
-Store items and top-up packs come from the game's economy in the Developer Portal. A top-up pack's
-`currency` and `amount` are what the player **receives**; `priceAmount` and `priceCurrency` are
-what it **costs** (use `priceAmountMinor` for arithmetic).
+Store items come from the game's economy in the Developer Portal. Each item is priced on a
+SusaPlay price tier (a fixed list from $0.99 to $99.99, like app stores); the developer picks the
+tier and never enters an amount or a payment SKU. A `StoreItemEntry` carries (SDK 1.11.0+):
+
+| Field | Meaning |
+| --- | --- |
+| `cashPrice` | The money price: `amount` + `currency` for display, `amountMinor` (499) for comparisons |
+| `coinPrice` | The price in SusaPlay coins, or 0 when the item cannot be bought with coins |
+| `directPurchaseEnabled` | It can be bought with money now → `StartDirectItemPurchase` |
+| `walletPurchaseEligible` | It can be bought with coins now → `SpendPlatformWallet` |
+| `price` | Legacy: the coin price in the pre-1.11.0 shape. Prefer `coinPrice` |
+
+Offer a money button when `directPurchaseEnabled`, and a coin button when
+`walletPurchaseEligible` — disabled while the balance is below `coinPrice`. Paying with coins is
+opt-in per item in the Developer Portal, and **a coin purchase earns the developer nothing**; only
+money purchases are paid out. Players get coins from rewarded ads (the platform sets the amount,
+which may be 0) and from top-up packs when those are on sale.
+
+Top-up packs (buying coins with money) may be switched off; with none on sale, `GetTopupPacks()`
+returns an empty list — hide the section. A pack's `currency` and `amount` are what the player
+**receives**; `priceAmount` and `priceCurrency` are what it **costs**.
 
 ## Spending wallet balance
 
@@ -30,8 +48,9 @@ else
 }
 ```
 
-`PlatformWalletSpendResult`: `Success`, `Wallet`, `Inventory`, `Consumables`, `Error`. The price is
-read on the server inside the same transaction.
+`PlatformWalletSpendResult`: `Success`, `Wallet`, `Inventory`, `Consumables`, `Error`. The server
+charges the item's coin price; the game never sends a price. It is refused unless the developer
+allowed coins for the item, and for a guest.
 
 `ConsumeItem(itemId, quantity = 1)` uses up a consumable: `ConsumeResult` has `Success`, `ItemId`,
 `Remaining`, `Consumables`, `Error`.
@@ -42,10 +61,16 @@ The SusaPlay page runs checkout. The game starts it and awaits the outcome:
 
 ```csharp
 var purchase = await SusaPlaySDK.Purchases.StartDirectItemPurchase("starter_pack");
-var topup = await SusaPlaySDK.Purchases.StartWalletTopupPurchase("coins_100");
 if (purchase.Success)
 {
     // Paid, and the item is already credited on the server.
+}
+
+// Top-ups only when a pack is on sale; take the ID from the list.
+var packs = await SusaPlaySDK.Purchases.GetTopupPacks();
+if (packs.Success && packs.Packs.Length > 0)
+{
+    var topup = await SusaPlaySDK.Purchases.StartWalletTopupPurchase(packs.Packs[0].topupPackId);
 }
 ```
 
@@ -71,6 +96,11 @@ re-read the wallet and the inventory.
   A purchase can still complete after the player closes the tab — re-read the wallet and the
   inventory on the next session.
 - Check the inventory before offering a durable item the player may already own.
+- Always pass the item ID. `StartPurchase()` names no item and is obsolete since SDK 1.11.0: the
+  platform refuses it, because many items share one price tier.
+- An item that cannot be bought with money right now (its price tier is off sale or not set) is
+  refused before checkout opens: `Status` `token-failed`, `ErrorCode` `UPSTREAM_ERROR`, and
+  `ErrorMessage` says why. Show the money button only when `directPurchaseEnabled` is true.
 
 ## Sandbox
 
@@ -86,9 +116,10 @@ the purchase is live. Sandbox purchases credit a separate test wallet; `WalletSc
 
 ## Naming
 
-- The SDK's API is not named after any payment provider. Since SDK 1.5.0 it is `StartPurchase`
-  and `PurchaseResult` (the old `StartXsollaPurchase` and `XsollaPurchaseResult` were removed
-  without aliases — a game still using them must be updated).
+- The SDK's API is not named after any payment provider. Since SDK 1.5.0 it is
+  `StartDirectItemPurchase` / `StartWalletTopupPurchase` and `PurchaseResult` (the old
+  `StartXsollaPurchase` and `XsollaPurchaseResult` were removed without aliases — a game still
+  using them must be updated).
 - Never describe the payment provider as SusaPlay's payment processor, and never say SusaPlay is
   the merchant of record. Say "SusaPlay's checkout" if you need a name.
 - There are no in-app purchases for iOS or Android: SusaPlay games are WebGL.

@@ -14,7 +14,7 @@ import { fail, ok } from "./result.js";
 import type { ApiGame } from "./shared.js";
 
 /** The newest SusaPlay SDK this server release knows of; SP002 compares against it. */
-export const LATEST_KNOWN_SDK = "1.9.1";
+export const LATEST_KNOWN_SDK = "1.11.0";
 const ADDRESSABLES_BASE = "https://games.susaplay.com/addressables/";
 
 export type Severity = "error" | "warning" | "info";

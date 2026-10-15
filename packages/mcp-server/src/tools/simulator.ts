@@ -5,9 +5,14 @@ import type { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod";
 
 import type { ApiClient } from "../api/client.js";
+import { compareVersions, readInstalledPackage } from "../unity/packages.js";
 import { PLATFORM_CONFIG_PATH, SIMULATOR_CONFIG_PATH, readProjectGameKey, resolveProjectRoot } from "../unity/project.js";
 import { ToolInputError, fail, ok } from "./result.js";
 import { type ApiGame, gameIdSchema } from "./shared.js";
+
+/** The export carries coin prices (`coinPrice`) and no legacy `price` from this SDK on; an older
+ * Simulator cannot charge a coin spend with it. */
+const SIMULATOR_CONFIG_MIN_SDK = "1.11.0";
 
 interface SimulatorConfig {
   format: number;
@@ -80,6 +85,13 @@ export function registerSimulatorTools(server: McpServer, api: ApiClient, cwd: (
         // the committed file diffs the same either way.
         await writeFile(file, `${JSON.stringify(config, null, 2)}\n`, "utf8");
 
+        const sdk = await readInstalledPackage(root, "com.susaplay.sdk");
+        const sdkWarning =
+          sdk?.version && compareVersions(sdk.version, SIMULATOR_CONFIG_MIN_SDK) < 0
+            ? ` Warning: this project has SusaPlay SDK ${sdk.version}. The configuration is for SDK ` +
+              `${SIMULATOR_CONFIG_MIN_SDK} or later: on an older SDK, coin spends in the Simulator fail. Update the SDK.`
+            : "";
+
         const count = (value: unknown) => (Array.isArray(value) ? value.length : value && typeof value === "object" ? Object.keys(value).length : 0);
         const result = {
           gameId: targetId,
@@ -91,7 +103,8 @@ export function registerSimulatorTools(server: McpServer, api: ApiClient, cwd: (
         return ok(
           `Wrote ${SIMULATOR_CONFIG_PATH} for ${result.gameName ?? targetId} (${result.achievements} achievements, ` +
             `${result.items} items). The Editor Simulator reads it on the next Play. Commit the file so everyone ` +
-            "on the project tests against the same configuration.",
+            "on the project tests against the same configuration." +
+            sdkWarning,
           result,
         );
       } catch (error) {
