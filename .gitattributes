@@ -5,3 +5,6 @@ plugins/susaplay/server/susaplay-mcp.mjs linguist-generated=true -diff
 *.bin binary
 *.bundle binary
 *.png binary
+# The plugin is installed byte for byte as committed: no checkout conversion of any
+# kind, or the installed files would differ from what the plugin directory validated.
+plugins/susaplay/** -text -eol
