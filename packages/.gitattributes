@@ -1,0 +1,7 @@
+# Kept out of the repository root: Anthropic's plugin directory refuses the plugin when a
+# root .gitattributes exists, so the rules live next to the files they cover.
+* text=auto eol=lf
+# Unity output used as test fixtures: byte for byte as Unity wrote it.
+*.bin binary
+*.bundle binary
+*.png binary
