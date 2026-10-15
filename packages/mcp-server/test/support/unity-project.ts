@@ -47,7 +47,7 @@ export function makeProject(options: ProjectOptions = {}): string {
   if (options.sdkVersion !== null) {
     dependencies["com.susaplay.sdk"] = "https://github.com/Susa-Games/com.susaplay.sdk.git#latest";
     lock["com.susaplay.sdk"] = { version: "https://github.com/Susa-Games/com.susaplay.sdk.git#latest", source: "git" };
-    write("Library/PackageCache/com.susaplay.sdk@8ef6bced/package.json", JSON.stringify({ version: options.sdkVersion ?? "1.9.1" }));
+    write("Library/PackageCache/com.susaplay.sdk@8ef6bced/package.json", JSON.stringify({ version: options.sdkVersion ?? "1.11.0" }));
   }
   const aa = options.addressables;
   if (aa) {

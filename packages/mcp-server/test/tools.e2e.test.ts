@@ -382,6 +382,22 @@ describe("sync_simulator_config", () => {
     expect(result.content[0].text).toContain("Commit the file");
   });
 
+  it("warns when the project's SDK is older than the configuration needs", async () => {
+    const manifest = join(project, "Packages/manifest.json");
+    mkdirSync(join(project, "Packages"), { recursive: true });
+    writeFileSync(manifest, JSON.stringify({ dependencies: { "com.susaplay.sdk": "1.9.1" } }));
+    try {
+      const mcp = session();
+      await mcp.open();
+      const result = await mcp.callTool("sync_simulator_config");
+      expect(result.isError).toBeFalsy();
+      expect(result.content[0].text).toContain("SDK 1.9.1");
+      expect(result.content[0].text).toContain("1.11.0 or later");
+    } finally {
+      rmSync(manifest, { force: true });
+    }
+  });
+
   it("refuses to write another game's configuration into the project", async () => {
     routes["/catalog/game/g2/simulator-config"] = { ...SIMULATOR_CONFIG, game: { gameId: "g2", gameKey: "gk_other", name: "Other" } };
     rmSync(file(), { force: true });

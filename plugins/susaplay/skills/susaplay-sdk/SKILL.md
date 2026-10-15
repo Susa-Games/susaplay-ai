@@ -9,14 +9,14 @@ The SusaPlay SDK is a Unity package written in C#, for **WebGL games only**. The
 inside the SusaPlay page, and the SDK talks to the platform through that page. There is no
 JavaScript SDK, and nothing here applies to Android or iOS.
 
-Current release: **1.9.1**. Unity 2021.3 or later.
+Current release: **1.11.0**. Unity 2021.3 or later.
 
 ## Install and set up
 
 1. Add the package, pinned to a release tag, in `Packages/manifest.json`:
 
    ```json
-   "com.susaplay.sdk": "https://github.com/Susa-Games/com.susaplay.sdk.git#v1.9.1"
+   "com.susaplay.sdk": "https://github.com/Susa-Games/com.susaplay.sdk.git#v1.11.0"
    ```
 
 2. In Unity: **SusaPlay → Setup**, paste the game key, **Save**. This writes
@@ -79,7 +79,8 @@ each item that fits the game. Report what was done and what was skipped, and why
    playable.
 3. Progress saved with `CloudSave` — JSON data; an empty slot means a new player.
 4. Purchases, the wallet and ads through `Purchases` and `Ads`, granting only on the platform's
-   confirmation (`Success` for purchases, `Rewarded` for ads).
+   confirmation (`Success` for purchases, `Rewarded` for the game's own ad reward). Store buttons
+   follow `directPurchaseEnabled` (money) and `walletPurchaseEligible` (coins).
 5. Achievements only with IDs registered in the Developer Portal; with the MCP tools,
    `sync_simulator_config` brings them into the Editor Simulator.
 6. `level_up` with a `level` whenever the player's level changes, if the game has player levels.

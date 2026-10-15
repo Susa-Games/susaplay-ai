@@ -84,8 +84,8 @@ A build in `processing` or `extracting` for more than 15 minutes is reported as 
 
 A passing review makes the build live; SusaPlay sends the `BUILD_LIVE` webhook event, or
 `BUILD_REJECTED`. For a private game, the developer's **Request public** sends one `ready` build
-for review together with the game; it needs a thumbnail, a description of at least 200
-characters and a URL slug.
+for review together with the game; it needs a landscape cover (16:9, at least 1280×720; square
+and portrait covers are optional), a description of at least 200 characters and a URL slug.
 
 ## Before review
 
