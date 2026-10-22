@@ -91,6 +91,19 @@ const routes: Record<string, unknown> = {
     retention: { d1: 0.5, d7: 0.25, d30: null },
   },
   "/catalog/game/g1/simulator-config": SIMULATOR_CONFIG,
+  "/catalog/game/g1/economy-config": {
+    gameId: "g1",
+    currencies: {},
+    items: { sword: { name: "Sword", priceTier: "tier_499", type: "durable", walletPurchaseEnabled: false } },
+    priceTiers: [{ priceTierId: "tier_499", amountMinor: 499, currency: "USD" }],
+    coinsPerCent: 10,
+  },
+  "/catalog/game/g1/achievements": {
+    gameId: "g1",
+    achievements: [{ id: "first_win", name: "First win", type: "oneshot", targetValue: null, points: 10 }],
+  },
+  "/catalog/game/g1/economy/items": { gameId: "g1", itemId: "booster", item: { name: "Booster", priceTier: "tier_499", type: "consumable", walletPurchaseEnabled: false } },
+  "/catalog/game/g1/achievements/add": { gameId: "g1", achievementId: "coins_100" },
   "/catalog/game/g1/versions/1.0.2/preview-session": {
     sessionId: "s1",
     gameId: "g1",
@@ -188,11 +201,14 @@ describe("read tools against the API", () => {
     const { result } = await mcp.request("tools/list");
     const tools = Object.fromEntries(result.tools.map((tool: any) => [tool.name, tool]));
     expect(Object.keys(tools).sort()).toEqual([
+      "add_achievement",
+      "add_store_item",
       "check_project",
       "create_preview_link",
       "get_addressables",
       "get_analytics",
       "get_game",
+      "get_game_config",
       "inspect_build",
       "list_games",
       "plan_addressables_publish",
@@ -330,6 +346,86 @@ describe("read tools against the API", () => {
     const result = await mcp.callTool("get_game", { gameId: "nope" });
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain("Use list_games");
+  });
+});
+
+describe("game config tools", () => {
+  it("get_game_config lists items, achievements and the tiers with coin prices", async () => {
+    const mcp = session();
+    await mcp.open();
+    const result = await mcp.callTool("get_game_config", { gameId: "g1" });
+    expect(result.isError).toBeFalsy();
+    expect(result.structuredContent).toMatchObject({
+      items: [{ itemId: "sword", priceTier: "tier_499", walletPurchaseEnabled: false }],
+      achievements: [{ achievementId: "first_win", points: 10 }],
+      priceTiers: [{ priceTierId: "tier_499", price: "4.99 USD", coinPrice: 4990 }],
+    });
+  });
+
+  it("add_store_item sends one item, coins off unless asked", async () => {
+    const mcp = session();
+    await mcp.open();
+    const result = await mcp.callTool("add_store_item", {
+      gameId: "g1",
+      itemId: "booster",
+      name: "Booster",
+      type: "consumable",
+      priceTier: "tier_499",
+    });
+    expect(result.isError).toBeFalsy();
+    expect(bodies["/catalog/game/g1/economy/items"]).toEqual({
+      itemId: "booster",
+      name: "Booster",
+      description: "",
+      type: "consumable",
+      priceTier: "tier_499",
+      walletPurchaseEnabled: false,
+    });
+    expect(result.content[0].text).toContain("sync_simulator_config");
+  });
+
+  it("add_store_item and add_achievement ask for confirmation and say they only create", async () => {
+    const mcp = session();
+    await mcp.open();
+    const { result } = await mcp.request("tools/list");
+    const tools = Object.fromEntries(result.tools.map((tool: any) => [tool.name, tool]));
+    for (const name of ["add_store_item", "add_achievement"]) {
+      expect(tools[name].description).toContain("only after they confirm");
+      expect(tools[name].description).toContain("Create only");
+    }
+    expect(tools.add_store_item.description).toContain("explicitly confirmed");
+  });
+
+  it("add_achievement needs a target for an incremental one and sends nothing without it", async () => {
+    delete bodies["/catalog/game/g1/achievements/add"];
+    const mcp = session();
+    await mcp.open();
+    const refused = await mcp.callTool("add_achievement", { gameId: "g1", achievementId: "coins_100", name: "Collector", type: "incremental" });
+    expect(refused.isError).toBe(true);
+    expect(bodies["/catalog/game/g1/achievements/add"]).toBeUndefined();
+    const added = await mcp.callTool("add_achievement", {
+      gameId: "g1",
+      achievementId: "coins_100",
+      name: "Collector",
+      type: "incremental",
+      targetValue: 100,
+      points: 20,
+    });
+    expect(added.isError).toBeFalsy();
+    expect(bodies["/catalog/game/g1/achievements/add"]).toMatchObject({ achievementId: "coins_100", targetValue: 100, points: 20 });
+  });
+
+  it("explains an ID that already exists", async () => {
+    failures["/catalog/game/g1/economy/items"] = { status: 409, error: { code: "ALREADY_EXISTS", message: "Store item 'sword' already exists." } };
+    try {
+      const mcp = session();
+      await mcp.open();
+      const result = await mcp.callTool("add_store_item", { gameId: "g1", itemId: "sword", name: "Sword", type: "durable", priceTier: "tier_499" });
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain("already registered");
+    } finally {
+      delete failures["/catalog/game/g1/economy/items"];
+    }
   });
 });
 

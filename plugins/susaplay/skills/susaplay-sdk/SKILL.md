@@ -81,8 +81,10 @@ each item that fits the game. Report what was done and what was skipped, and why
 4. Purchases, the wallet and ads through `Purchases` and `Ads`, granting only on the platform's
    confirmation (`Success` for purchases, `Rewarded` for the game's own ad reward). Store buttons
    follow `directPurchaseEnabled` (money) and `walletPurchaseEligible` (coins).
-5. Achievements only with IDs registered in the Developer Portal; with the MCP tools,
-   `sync_simulator_config` brings them into the Editor Simulator.
+5. Achievements and store items only with IDs registered on SusaPlay. With the MCP tools, read
+   `get_game_config`, register what is missing with `add_achievement` / `add_store_item` (each
+   after the developer confirms it), then `sync_simulator_config` brings them into the Editor
+   Simulator. Without the tools, the developer registers them in the Developer Portal.
 6. `level_up` with a `level` whenever the player's level changes, if the game has player levels.
 7. The recommended analytics events — see the `susaplay-analytics` skill.
 8. With the MCP tools, `check_project`; then test in Play Mode with the Editor Simulator.

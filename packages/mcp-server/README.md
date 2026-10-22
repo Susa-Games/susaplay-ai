@@ -50,10 +50,13 @@ where to set it.
 | `list_games` | Your games: what is live, the latest build and its status, Addressables, the game key | No |
 | `get_game` | One game with every build, the retention policy and which builds the next upload deletes | No |
 | `get_addressables` | A game's live and staged Addressables content, and the releases kept for rollback | No |
-| `get_analytics` | Daily and 30-day active players, and D1/D7/D30 retention. No revenue | No |
+| `get_analytics` | Distinct and 30-day active players, the daily series, and D1/D7/D30 retention. No revenue | No |
+| `get_game_config` | A game's store items, achievements, and the price tiers a new item can use | No |
 | `check_project` | Checks a Unity project's SusaPlay SDK and Addressables setup | No |
 | `inspect_build` | Checks a WebGL build against SusaPlay's upload rules, and its Addressables catalog against the content it loads | No |
 | `sync_simulator_config` | Writes the game's configuration for the Editor Simulator into the Unity project | The project file only |
+| `add_store_item` | Registers a new store item (create only; editing stays in the portal). After the developer confirms | Yes: a new item in the game's store |
+| `add_achievement` | Registers a new achievement (create only; editing stays in the portal). After the developer confirms | Yes: a new achievement |
 | `publish_build` | Uploads a WebGL build: into review, or as `ready` to test when the game is private | Yes: a new build; retention may delete old builds that are not live or in review |
 | `create_preview_link` | A single-use, 30-minute link to play a build in review, or a private game's `ready` build | Yes: a preview session |
 | `upload_addressables` | Uploads an Addressables content build to staging: the catalog and the bundles it names, skipping what SusaPlay has | Staging only; players see nothing |
@@ -62,8 +65,10 @@ where to set it.
 | `rollback_addressables` | Makes a kept release live again, checked against the live build | **Yes: what players download, immediately** |
 
 Each tool needs the matching permission on the API key: reading games, reading analytics,
-uploading builds, uploading Addressables, or publishing Addressables. The **AI assistant** preset
-cannot publish or roll back Addressables; **AI assistant with live publishing** can.
+uploading builds, uploading Addressables, publishing Addressables, or adding store items and
+achievements (`game-config:write`). The **AI assistant** preset cannot publish or roll back
+Addressables; **AI assistant with live publishing** can. Both may add items and achievements; a key
+created before that permission existed does not have it.
 
 ## Configuration
 

@@ -12,7 +12,11 @@ transaction; it never writes a balance and never grants an item before the platf
 | `GetTopupPacks()` | `TopupPacksResult` | `Success`, `Packs`, `Error` |
 | `GetInventory()` | `InventoryResult` | `Success`, `Items`, `Consumables`, `Error` |
 
-Store items come from the game's economy in the Developer Portal. Each item is priced on a
+Store items come from the game's economy in the Developer Portal. With the MCP tools,
+`get_game_config` lists them and the price tiers on sale, and `add_store_item` registers a new one
+after the developer confirms its ID, name, type and tier. It only creates; re-pricing or deleting
+an item stays in the portal, since players may own it. Allow coins on an item only when the
+developer explicitly agrees. Each item is priced on a
 SusaPlay price tier (a fixed list from $0.99 to $99.99, like app stores); the developer picks the
 tier and never enters an amount or a payment SKU. A `StoreItemEntry` carries (SDK 1.11.0+):
 
