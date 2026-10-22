@@ -6,6 +6,7 @@ import { registerAddressablesPublishTools } from "./tools/addressables-publish.j
 import { registerAddressablesTools } from "./tools/addressables.js";
 import { registerAnalyticsTools } from "./tools/analytics.js";
 import { registerCheckProjectTool } from "./tools/check-project.js";
+import { registerGameConfigTools } from "./tools/game-config.js";
 import { registerGameTools } from "./tools/games.js";
 import { registerInspectBuildTool } from "./tools/inspect-build.js";
 import { registerPublishTools } from "./tools/publish.js";
@@ -33,6 +34,7 @@ export function createServer(dependencies: ServerDependencies = {}): McpServer {
     clientName: () => server.server.getClientVersion()?.name,
   });
   registerGameTools(server, api);
+  registerGameConfigTools(server, api);
   registerAddressablesTools(server, api);
   registerAnalyticsTools(server, api);
   registerSimulatorTools(server, api, dependencies.cwd);

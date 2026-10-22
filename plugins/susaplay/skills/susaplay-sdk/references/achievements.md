@@ -1,8 +1,11 @@
 # Achievements — `SusaPlaySDK.Achievements`
 
 Achievements are defined in the Developer Portal (ID, name, description, icon, type, points). The
-game sends only the ID. **Register an achievement in the portal before the game uses it**: an
-unknown ID is refused with `404 NOT_FOUND` and nothing is recorded.
+game sends only the ID. **Register an achievement before the game uses it**: an unknown ID is
+refused with `404 NOT_FOUND` and nothing is recorded. With the MCP tools, `add_achievement`
+registers a new one — show the developer the ID, name, type, target and points and add it after
+they confirm. It only creates: changing or deleting an achievement is done in the portal, because
+players may already have progress on it.
 
 | Type | Call | Unlocks when |
 | --- | --- | --- |

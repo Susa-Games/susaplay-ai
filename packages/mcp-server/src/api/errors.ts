@@ -31,8 +31,13 @@ export function guidanceFor(error: ApiError): string {
     case "INSUFFICIENT_SCOPE":
       return (
         `This API key does not have the ${error.details.requiredScope ?? "required"} permission. ` +
-        "Create a key that has it in the Developer Portal under API Keys, and replace SUSAPLAY_API_KEY."
+        "Create a key that has it in the Developer Portal under API Keys, and replace SUSAPLAY_API_KEY." +
+        (error.details.requiredScope === "game-config:write"
+          ? " Keys made before this permission existed (October 2026) do not have it, whatever their preset."
+          : "")
       );
+    case "ALREADY_EXISTS":
+      return `That ID is already registered.${detail} Pick another ID with get_game_config, or edit the existing one in the Developer Portal.`;
     case "UNAUTHORIZED":
       return `Not allowed: the game belongs to another developer, or the developer account is suspended.${detail}`;
     case "NOT_FOUND":
