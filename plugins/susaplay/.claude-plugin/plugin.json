@@ -7,6 +7,7 @@
   "homepage": "https://docs.susaplay.com/integration/ai-tools",
   "repository": "https://github.com/Susa-Games/susaplay-ai",
   "license": "Apache-2.0",
+  "privacyPolicyUrl": "https://susaplay.com/privacy",
   "keywords": ["unity", "webgl", "games", "sdk", "publishing"],
   "userConfig": {
     "api_key": {
